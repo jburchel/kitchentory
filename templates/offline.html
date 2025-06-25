@@ -1,0 +1,188 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Kitchentory</title>
+    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+    <style>
+        .offline-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .connection-status {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 0.5rem 1rem;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .connection-status.offline {
+            background-color: #fbbf24;
+            color: #92400e;
+        }
+        
+        .connection-status.online {
+            background-color: #10b981;
+            color: #065f46;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Connection Status Bar -->
+    <div id="connection-status" class="connection-status offline">
+        You're offline - some features may be limited
+    </div>
+    
+    <div class="container mx-auto px-4 py-16 mt-12">
+        <div class="max-w-md mx-auto bg-white rounded-lg shadow-sm border p-8 text-center">
+            <!-- Offline Icon -->
+            <div class="offline-animation mb-6">
+                <svg class="w-24 h-24 text-gray-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-12.728 12.728m0-12.728l12.728 12.728M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
+                </svg>
+            </div>
+            
+            <h1 class="text-2xl font-bold text-gray-900 mb-4">You're Offline</h1>
+            <p class="text-gray-600 mb-6">
+                Don't worry! You can still access your cached inventory, recipes, and shopping lists. 
+                Any changes you make will be synced when you're back online.
+            </p>
+            
+            <!-- Available Offline Features -->
+            <div class="space-y-4 mb-6">
+                <h3 class="font-semibold text-gray-900">Available Offline:</h3>
+                <div class="grid grid-cols-1 gap-3">
+                    <a href="/inventory/" class="flex items-center p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                        <svg class="w-5 h-5 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"></path>
+                        </svg>
+                        <div class="text-left">
+                            <p class="font-medium text-gray-900">Inventory</p>
+                            <p class="text-sm text-gray-600">View and update your items</p>
+                        </div>
+                    </a>
+                    
+                    <a href="/recipes/" class="flex items-center p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                        <svg class="w-5 h-5 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        <div class="text-left">
+                            <p class="font-medium text-gray-900">Recipes</p>
+                            <p class="text-sm text-gray-600">Browse cached recipes</p>
+                        </div>
+                    </a>
+                    
+                    <a href="/shopping/" class="flex items-center p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                        <svg class="w-5 h-5 text-purple-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        <div class="text-left">
+                            <p class="font-medium text-gray-900">Shopping Lists</p>
+                            <p class="text-sm text-gray-600">Check off items while shopping</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Try Again Button -->
+            <button onclick="window.location.reload()" 
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">
+                Try Again
+            </button>
+            
+            <!-- Pending Sync Status -->
+            <div id="pending-sync" class="mt-6 p-3 bg-yellow-50 border border-yellow-200 rounded-lg" style="display: none;">
+                <p class="text-sm text-yellow-700">
+                    <span id="pending-count">0</span> changes waiting to sync when you're back online
+                </p>
+            </div>
+        </div>
+        
+        <!-- Tips for Offline Use -->
+        <div class="max-w-md mx-auto mt-8 bg-white rounded-lg shadow-sm border p-6">
+            <h3 class="font-semibold text-gray-900 mb-4">💡 Offline Tips</h3>
+            <ul class="space-y-2 text-sm text-gray-600">
+                <li>• Changes you make will automatically sync when you're back online</li>
+                <li>• Cached data includes your recent inventory, recipes, and shopping lists</li>
+                <li>• Barcode scanning works offline for products you've scanned before</li>
+                <li>• Push notifications will still work for reminders</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Check online status and update UI
+        function updateOnlineStatus() {
+            const statusEl = document.getElementById('connection-status');
+            const pendingEl = document.getElementById('pending-sync');
+            
+            if (navigator.onLine) {
+                statusEl.className = 'connection-status online';
+                statusEl.textContent = 'Back online! Redirecting...';
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+            } else {
+                statusEl.className = 'connection-status offline';
+                statusEl.textContent = 'You\'re offline - some features may be limited';
+                
+                // Check for pending sync items
+                checkPendingSync();
+            }
+        }
+        
+        async function checkPendingSync() {
+            if ('indexedDB' in window) {
+                try {
+                    const request = indexedDB.open('KitchentoryOffline', 1);
+                    request.onsuccess = function() {
+                        const db = request.result;
+                        const stores = ['pendingInventoryUpdates', 'pendingShoppingUpdates'];
+                        let totalPending = 0;
+                        let completed = 0;
+                        
+                        stores.forEach(storeName => {
+                            if (db.objectStoreNames.contains(storeName)) {
+                                const transaction = db.transaction([storeName], 'readonly');
+                                const store = transaction.objectStore(storeName);
+                                const countRequest = store.count();
+                                
+                                countRequest.onsuccess = function() {
+                                    totalPending += countRequest.result;
+                                    completed++;
+                                    
+                                    if (completed === stores.length && totalPending > 0) {
+                                        document.getElementById('pending-count').textContent = totalPending;
+                                        document.getElementById('pending-sync').style.display = 'block';
+                                    }
+                                };
+                            }
+                        });
+                    };
+                } catch (error) {
+                    console.log('IndexedDB not available');
+                }
+            }
+        }
+        
+        // Listen for online/offline events
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        
+        // Check status on load
+        updateOnlineStatus();
+    </script>
+</body>
+</html>

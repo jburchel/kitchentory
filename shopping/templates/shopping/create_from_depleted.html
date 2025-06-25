@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create List from Low Inventory - Kitchentory{% endblock %}
+
+{% block content %}
+<div class="create-from-depleted max-w-4xl mx-auto px-4 py-6">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center space-x-4 mb-4">
+            <a href="{% url 'shopping:create' %}" 
+               class="text-gray-600 hover:text-gray-900">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+            </a>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Create List from Low Inventory</h1>
+                <p class="text-gray-600">Add items that are running low to your shopping list</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings -->
+    <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <h3 class="font-medium text-gray-900 mb-4">Detection Settings</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label for="threshold_days" class="block text-sm font-medium text-gray-700 mb-2">
+                    Days Until Depletion
+                </label>
+                <input type="number" 
+                       id="threshold_days" 
+                       value="7"
+                       min="1"
+                       max="30"
+                       onchange="updateDepletedItems()"
+                       class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <p class="mt-1 text-xs text-gray-500">Items running out within this timeframe</p>
+            </div>
+            
+            <div>
+                <label for="min_threshold" class="block text-sm font-medium text-gray-700 mb-2">
+                    Minimum Threshold
+                </label>
+                <input type="number" 
+                       id="min_threshold" 
+                       value="1.0"
+                       min="0.1"
+                       step="0.1"
+                       onchange="updateDepletedItems()"
+                       class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <p class="mt-1 text-xs text-gray-500">Minimum units before considering low</p>
+            </div>
+            
+            <div>
+                <label for="category_filter" class="block text-sm font-medium text-gray-700 mb-2">
+                    Category Filter
+                </label>
+                <select id="category_filter" 
+                        onchange="filterItems()"
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Form -->
+    <form method="post" class="bg-white rounded-lg shadow-sm border p-6">
+        {% csrf_token %}
+        
+        <!-- List Details -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label for="list_name" class="block text-sm font-medium text-gray-700 mb-2">
+                    Shopping List Name <span class="text-red-500">*</span>
+                </label>
+                <input type="text" 
+                       id="list_name" 
+                       name="list_name" 
+                       value="Restock Low Items"
+                       required
+                       class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div>
+                <label for="store" class="block text-sm font-medium text-gray-700 mb-2">
+                    Preferred Store
+                </label>
+                <select id="store" 
+                        name="store"
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">No specific store</option>
+                    {% for store in stores %}
+                    <option value="{{ store.id }}">{{ store.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <!-- Selection Summary -->
+        <div id="selection-summary" class="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg hidden">
+            <h3 class="font-medium text-orange-900 mb-2">Selected Items</h3>
+            <p class="text-sm text-orange-700">
+                <span id="selected-count">0</span> items selected for shopping list
+            </p>
+        </div>
+        
+        <!-- Low Inventory Items -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Low Inventory Items</h3>
+                <div class="flex items-center space-x-2">
+                    <button type="button" 
+                            onclick="selectAll(true)"
+                            class="text-sm text-blue-600 hover:text-blue-800">
+                        Select All
+                    </button>
+                    <span class="text-gray-400">|</span>
+                    <button type="button" 
+                            onclick="selectAll(false)"
+                            class="text-sm text-blue-600 hover:text-blue-800">
+                        Clear All
+                    </button>
+                </div>
+            </div>
+            
+            <div id="depleted-items-container">
+                {% if depleted_items %}
+                <div class="space-y-3">
+                    {% for item in depleted_items %}
+                    <div class="depleted-item border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                         data-category-id="{{ item.product.category.id|default:'' }}">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" 
+                                   name="selected_items" 
+                                   value="{{ item.id }}"
+                                   onchange="updateSelection()"
+                                   class="h-5 w-5 text-blue-600 rounded focus:ring-blue-500 mr-4">
+                            
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">{{ item.product.name }}</h4>
+                                        <p class="text-sm text-gray-600">
+                                            Current: {{ item.current_quantity|floatformat:"-2" }} {{ item.unit }}
+                                            {% if item.location %}
+                                            • {{ item.location.name }}
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    
+                                    <div class="text-right">
+                                        {% if item.days_until_depletion %}
+                                        <span class="text-sm text-orange-600 font-medium">
+                                            {% if item.days_until_depletion <= 0 %}
+                                                Depleted
+                                            {% elif item.days_until_depletion <= 3 %}
+                                                {{ item.days_until_depletion }} day{{ item.days_until_depletion|pluralize }} left
+                                            {% else %}
+                                                {{ item.days_until_depletion }} days left
+                                            {% endif %}
+                                        </span>
+                                        {% else %}
+                                        <span class="text-sm text-red-600 font-medium">Very Low</span>
+                                        {% endif %}
+                                        
+                                        {% if item.suggested_quantity %}
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            Suggested: {{ item.suggested_quantity|floatformat:"-2" }} {{ item.unit }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Quantity Override -->
+                                <div class="mt-3 flex items-center space-x-4">
+                                    <div class="flex items-center space-x-2">
+                                        <label class="text-sm text-gray-600">Quantity:</label>
+                                        <input type="number" 
+                                               name="quantity_{{ item.id }}"
+                                               value="{{ item.suggested_quantity|default:1|floatformat:'-2' }}"
+                                               min="0.1"
+                                               step="0.1"
+                                               class="w-20 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                        <span class="text-sm text-gray-500">{{ item.unit }}</span>
+                                    </div>
+                                    
+                                    {% if item.product.average_price %}
+                                    <span class="text-sm text-gray-500">
+                                        ~${{ item.product.average_price|floatformat:2 }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-12">
+                    <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">All Good!</h3>
+                    <p class="text-gray-600 mb-4">No items are currently running low in your inventory.</p>
+                    <p class="text-sm text-gray-500">Try adjusting the threshold settings above to find items that might need restocking soon.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Options -->
+        {% if depleted_items %}
+        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h3 class="font-medium text-gray-900 mb-3">Options</h3>
+            <div class="space-y-3">
+                <label class="flex items-center">
+                    <input type="checkbox" 
+                           name="add_recurring_items" 
+                           class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500">
+                    <span class="ml-2 text-sm text-gray-700">
+                        Add recurring items that are due for reorder
+                    </span>
+                </label>
+                
+                <label class="flex items-center">
+                    <input type="checkbox" 
+                           name="use_suggested_quantities" 
+                           checked
+                           class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500">
+                    <span class="ml-2 text-sm text-gray-700">
+                        Use suggested quantities based on usage patterns
+                    </span>
+                </label>
+                
+                <label class="flex items-center">
+                    <input type="checkbox" 
+                           name="group_by_category"
+                           class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500">
+                    <span class="ml-2 text-sm text-gray-700">
+                        Group items by category in shopping list
+                    </span>
+                </label>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-3">
+            <a href="{% url 'shopping:create' %}" 
+               class="px-4 py-2 text-gray-700 hover:text-gray-900">
+                Cancel
+            </a>
+            <button type="submit" 
+                    id="create-button"
+                    disabled
+                    class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg transition-colors">
+                Create Shopping List
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateSelection() {
+    const checkboxes = document.querySelectorAll('input[name="selected_items"]:checked');
+    const count = checkboxes.length;
+    const createButton = document.getElementById('create-button');
+    const summary = document.getElementById('selection-summary');
+    const countSpan = document.getElementById('selected-count');
+    
+    // Update button state
+    createButton.disabled = count === 0;
+    
+    // Update summary
+    countSpan.textContent = count;
+    
+    if (count > 0) {
+        summary.classList.remove('hidden');
+    } else {
+        summary.classList.add('hidden');
+    }
+}
+
+function selectAll(select) {
+    const checkboxes = document.querySelectorAll('input[name="selected_items"]');
+    const visibleCheckboxes = Array.from(checkboxes).filter(cb => 
+        cb.closest('.depleted-item').style.display !== 'none'
+    );
+    
+    visibleCheckboxes.forEach(checkbox => {
+        checkbox.checked = select;
+    });
+    
+    updateSelection();
+}
+
+function filterItems() {
+    const categoryFilter = document.getElementById('category_filter').value;
+    const items = document.querySelectorAll('.depleted-item');
+    
+    items.forEach(item => {
+        const categoryId = item.dataset.categoryId;
+        
+        if (!categoryFilter || categoryId === categoryFilter) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+    
+    updateSelection();
+}
+
+async function updateDepletedItems() {
+    const thresholdDays = document.getElementById('threshold_days').value;
+    const minThreshold = document.getElementById('min_threshold').value;
+    
+    try {
+        const response = await fetch(`{% url 'shopping:ajax_depleted_items' %}?threshold_days=${thresholdDays}&min_threshold=${minThreshold}`);
+        const data = await response.json();
+        
+        const container = document.getElementById('depleted-items-container');
+        container.innerHTML = data.html;
+        
+        updateSelection();
+    } catch (error) {
+        console.error('Error updating depleted items:', error);
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    updateSelection();
+});
+</script>
+{% endblock %}

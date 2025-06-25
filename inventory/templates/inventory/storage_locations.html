@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Storage Locations - Kitchentory{% endblock %}
+{% block page_title %}Storage Locations{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+    <!-- Add New Location -->
+    <div class="card mb-6">
+        <div class="card-header">
+            <h2 class="font-medium">Add Storage Location</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                    <!-- Name -->
+                    <div>
+                        <label for="{{ form.name.id_for_label }}" class="form-label">
+                            Name <span class="text-danger">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <p class="form-error">{{ form.name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Type -->
+                    <div>
+                        <label for="{{ form.location_type.id_for_label }}" class="form-label">
+                            Type <span class="text-danger">*</span>
+                        </label>
+                        {{ form.location_type }}
+                        {% if form.location_type.errors %}
+                        <p class="form-error">{{ form.location_type.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Temperature -->
+                <div>
+                    <label for="{{ form.temperature.id_for_label }}" class="form-label">
+                        Temperature (°C)
+                    </label>
+                    {{ form.temperature }}
+                    <p class="text-sm text-gray-600 mt-1">
+                        Optional: Average temperature for expiration calculations
+                    </p>
+                    {% if form.temperature.errors %}
+                    <p class="form-error">{{ form.temperature.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Notes -->
+                <div>
+                    <label for="{{ form.notes.id_for_label }}" class="form-label">
+                        Notes
+                    </label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                    <p class="form-error">{{ form.notes.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    Add Location
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Existing Locations -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="font-medium">Your Storage Locations</h2>
+        </div>
+        <div class="card-body">
+            {% if locations %}
+            <div class="grid gap-4">
+                {% for location in locations %}
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-medium text-gray-900">{{ location.name }}</h3>
+                            <p class="text-sm text-gray-600">
+                                {{ location.get_location_type_display }}
+                                {% if location.temperature %} • {{ location.temperature }}°C{% endif %}
+                            </p>
+                            {% if location.notes %}
+                            <p class="text-sm text-gray-500 mt-1">{{ location.notes }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="text-right">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                {{ location.item_count }} item{{ location.item_count|pluralize }}
+                            </span>
+                            
+                            <div class="flex items-center space-x-2 mt-2">
+                                <button type="button" 
+                                        class="p-1 text-gray-500 hover:text-gray-700"
+                                        title="Edit location">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </button>
+                                
+                                {% if location.item_count == 0 %}
+                                <button type="button" 
+                                        class="p-1 text-danger hover:text-red-700"
+                                        title="Delete location"
+                                        onclick="confirm('Delete {{ location.name }}?') && this.closest('form').submit()">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+                <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+                <p class="text-gray-600">No storage locations yet</p>
+                <p class="text-sm text-gray-500 mt-1">Add your first location using the form above</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Default Locations Suggestion -->
+    {% if not locations %}
+    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+        <h3 class="font-medium text-blue-900 mb-2">Common Storage Locations</h3>
+        <p class="text-sm text-blue-700 mb-3">Here are some common locations you might want to add:</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+            <div class="bg-white rounded px-3 py-2">
+                <strong>Fridge</strong><br>
+                <span class="text-gray-600">4°C</span>
+            </div>
+            <div class="bg-white rounded px-3 py-2">
+                <strong>Freezer</strong><br>
+                <span class="text-gray-600">-18°C</span>
+            </div>
+            <div class="bg-white rounded px-3 py-2">
+                <strong>Pantry</strong><br>
+                <span class="text-gray-600">Room temp</span>
+            </div>
+            <div class="bg-white rounded px-3 py-2">
+                <strong>Counter</strong><br>
+                <span class="text-gray-600">Room temp</span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

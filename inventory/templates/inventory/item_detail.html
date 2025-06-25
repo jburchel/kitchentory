@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ item.product.name }} - Kitchentory{% endblock %}
+{% block page_title %}Item Details{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-6 lg:px-8 max-w-2xl mx-auto">
+    <!-- Item Overview -->
+    <div class="card mb-6">
+        <div class="card-body">
+            <div class="flex items-start space-x-4">
+                {% if item.product.image_url %}
+                <img src="{{ item.product.image_url }}" 
+                     alt="{{ item.product.name }}" 
+                     class="w-24 h-24 rounded-lg object-cover">
+                {% else %}
+                <div class="w-24 h-24 rounded-lg flex items-center justify-center" 
+                     style="background-color: {{ item.product.category.color|default:'#6B7280' }}20">
+                    <svg class="w-12 h-12" style="color: {{ item.product.category.color|default:'#6B7280' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                </div>
+                {% endif %}
+                
+                <div class="flex-1">
+                    <h2 class="text-xl font-semibold text-gray-900">{{ item.product.name }}</h2>
+                    {% if item.product.brand %}
+                    <p class="text-gray-600">{{ item.product.brand }}</p>
+                    {% endif %}
+                    <p class="text-sm text-gray-500 mt-1">
+                        {{ item.product.category.name }}
+                        {% if item.product.barcode %} • {{ item.product.barcode }}{% endif %}
+                    </p>
+                    
+                    <!-- Status -->
+                    {% if item.is_expired %}
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-danger text-white mt-2">
+                        Expired
+                    </span>
+                    {% elif item.days_until_expiration and item.days_until_expiration <= 7 %}
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-warning text-white mt-2">
+                        Expiring Soon
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="flex gap-3 mb-6">
+        <button type="button" 
+                class="btn btn-primary flex-1"
+                hx-post="{% url 'inventory:consume' item.id %}"
+                hx-confirm="Mark {{ item.product.name }} as consumed?"
+                hx-redirect="{% url 'inventory:list' %}">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Mark as Consumed
+        </button>
+        <button type="button" 
+                class="btn btn-danger"
+                hx-delete="{% url 'inventory:delete' item.id %}"
+                hx-confirm="Delete {{ item.product.name }}?"
+                hx-redirect="{% url 'inventory:list' %}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Edit Form -->
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Quantity and Location -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="font-medium">Quantity & Storage</h3>
+            </div>
+            <div class="card-body space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Quantity -->
+                    <div>
+                        <label for="{{ form.quantity.id_for_label }}" class="form-label">
+                            Quantity
+                        </label>
+                        {{ form.quantity }}
+                        {% if form.quantity.errors %}
+                        <p class="form-error">{{ form.quantity.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Unit -->
+                    <div>
+                        <label for="{{ form.unit.id_for_label }}" class="form-label">
+                            Unit
+                        </label>
+                        {{ form.unit }}
+                        {% if form.unit.errors %}
+                        <p class="form-error">{{ form.unit.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Storage Location -->
+                <div>
+                    <label for="{{ form.location.id_for_label }}" class="form-label">
+                        Storage Location
+                    </label>
+                    {{ form.location }}
+                    {% if form.location.errors %}
+                    <p class="form-error">{{ form.location.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dates -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="font-medium">Dates</h3>
+            </div>
+            <div class="card-body space-y-4">
+                <!-- Purchase Date -->
+                <div>
+                    <label for="{{ form.purchase_date.id_for_label }}" class="form-label">
+                        Purchase Date
+                    </label>
+                    {{ form.purchase_date }}
+                    {% if form.purchase_date.errors %}
+                    <p class="form-error">{{ form.purchase_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Expiration Date -->
+                <div>
+                    <label for="{{ form.expiration_date.id_for_label }}" class="form-label">
+                        Expiration Date
+                    </label>
+                    {{ form.expiration_date }}
+                    {% if form.expiration_date.errors %}
+                    <p class="form-error">{{ form.expiration_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional Info -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="font-medium">Additional Information</h3>
+            </div>
+            <div class="card-body space-y-4">
+                <!-- Price -->
+                <div>
+                    <label for="{{ form.price.id_for_label }}" class="form-label">
+                        Price
+                    </label>
+                    {{ form.price }}
+                    {% if form.price.errors %}
+                    <p class="form-error">{{ form.price.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Notes -->
+                <div>
+                    <label for="{{ form.notes.id_for_label }}" class="form-label">
+                        Notes
+                    </label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                    <p class="form-error">{{ form.notes.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hidden field for product -->
+        {{ form.product }}
+        
+        <!-- Actions -->
+        <div class="flex gap-3">
+            <button type="submit" class="btn btn-primary flex-1">
+                Save Changes
+            </button>
+            <a href="{% url 'inventory:list' %}" class="btn btn-outline">
+                Cancel
+            </a>
+        </div>
+    </form>
+    
+    <!-- Item Metadata -->
+    <div class="mt-6 text-sm text-gray-500">
+        <p>Added {{ item.created_at|date:"F j, Y" }} at {{ item.created_at|time:"g:i A" }}</p>
+        {% if item.updated_at != item.created_at %}
+        <p>Last updated {{ item.updated_at|timesince }} ago</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

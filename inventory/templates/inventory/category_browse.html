@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ category.name }} Products - Kitchentory{% endblock %}
+{% block page_title %}{{ category.name }}{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="mb-6">
+        <nav class="flex items-center space-x-2 text-sm text-gray-600 mb-4">
+            <a href="{% url 'inventory:list' %}" class="hover:text-gray-900">Inventory</a>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+            <span class="text-gray-900 font-medium">{{ category.name }}</span>
+        </nav>
+        
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">{{ category.name }}</h1>
+                <p class="text-gray-600 mt-1">
+                    {{ products.paginator.count }} product{{ products.paginator.count|pluralize }} available
+                </p>
+            </div>
+            
+            <!-- Category color indicator -->
+            {% if category.color %}
+            <div class="w-12 h-12 rounded-lg flex items-center justify-center" 
+                 style="background-color: {{ category.color }}20; border: 2px solid {{ category.color }}">
+                {% if category.icon %}
+                <i class="{{ category.icon }} text-lg" style="color: {{ category.color }}"></i>
+                {% else %}
+                <div class="w-6 h-6 rounded" style="background-color: {{ category.color }}"></div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Child Categories -->
+    {% if child_categories %}
+    <div class="mb-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-3">Subcategories</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {% for child in child_categories %}
+            <a href="{% url 'inventory:category_browse' child.id %}" 
+               class="p-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all duration-200">
+                <div class="flex flex-col items-center text-center">
+                    {% if child.color %}
+                    <div class="w-8 h-8 rounded-lg mb-2 flex items-center justify-center"
+                         style="background-color: {{ child.color }}20; border: 1px solid {{ child.color }}">
+                        {% if child.icon %}
+                        <i class="{{ child.icon }}" style="color: {{ child.color }}"></i>
+                        {% else %}
+                        <div class="w-4 h-4 rounded" style="background-color: {{ child.color }}"></div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    <span class="text-xs font-medium text-gray-900">{{ child.name }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Products Grid -->
+    <div id="products-container" class="space-y-4">
+        {% include 'inventory/partials/category_products.html' %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if products.has_other_pages %}
+    <div class="mt-8 flex justify-center">
+        <nav class="flex items-center space-x-2">
+            {% if products.has_previous %}
+            <a href="?page={{ products.previous_page_number }}" 
+               class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                Previous
+            </a>
+            {% endif %}
+            
+            <div class="flex items-center space-x-1">
+                {% for num in products.paginator.page_range %}
+                    {% if products.number == num %}
+                    <span class="px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-300 rounded-lg">
+                        {{ num }}
+                    </span>
+                    {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                    <a href="?page={{ num }}" 
+                       class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                        {{ num }}
+                    </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            
+            {% if products.has_next %}
+            <a href="?page={{ products.next_page_number }}" 
+               class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                Next
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Add click handlers for product selection
+document.addEventListener('DOMContentLoaded', function() {
+    const productCards = document.querySelectorAll('.product-card');
+    
+    productCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            const productName = this.dataset.productName;
+            const productBrand = this.dataset.productBrand || '';
+            const categoryName = '{{ category.name|escapejs }}';
+            
+            // Use global selectProduct function
+            if (window.selectProduct) {
+                window.selectProduct(productId, productName, productBrand, categoryName);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

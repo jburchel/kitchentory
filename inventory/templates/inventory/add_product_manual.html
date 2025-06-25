@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Add Product Manually - Kitchentory{% endblock %}
+{% block page_title %}Add Product Manually{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-6 lg:px-8 max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-2">Create New Product</h2>
+        <p class="text-sm text-gray-600">
+            This product wasn't found in our database. Please enter the details manually.
+        </p>
+        {% if initial_barcode %}
+        <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-sm text-blue-800">Scanned barcode: <strong>{{ initial_barcode }}</strong></span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Basic Information -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="font-medium">Basic Information</h3>
+            </div>
+            <div class="card-body space-y-4">
+                <!-- Product Name -->
+                <div>
+                    <label for="{{ form.name.id_for_label }}" class="form-label">
+                        Product Name <span class="text-danger">*</span>
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <p class="form-error">{{ form.name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Brand -->
+                <div>
+                    <label for="{{ form.brand.id_for_label }}" class="form-label">
+                        Brand
+                    </label>
+                    {{ form.brand }}
+                    {% if form.brand.errors %}
+                    <p class="form-error">{{ form.brand.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Barcode -->
+                <div>
+                    <label for="{{ form.barcode.id_for_label }}" class="form-label">
+                        Barcode
+                    </label>
+                    {{ form.barcode }}
+                    {% if form.barcode.help_text %}
+                    <p class="text-sm text-gray-600 mt-1">{{ form.barcode.help_text }}</p>
+                    {% endif %}
+                    {% if form.barcode.errors %}
+                    <p class="form-error">{{ form.barcode.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Category -->
+                <div>
+                    <label for="{{ form.category.id_for_label }}" class="form-label">
+                        Category <span class="text-danger">*</span>
+                    </label>
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                    <p class="form-error">{{ form.category.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Default Unit -->
+                <div>
+                    <label for="{{ form.default_unit.id_for_label }}" class="form-label">
+                        Default Unit
+                    </label>
+                    {{ form.default_unit }}
+                    {% if form.default_unit.errors %}
+                    <p class="form-error">{{ form.default_unit.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Nutritional Information -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="font-medium">Nutritional Information</h3>
+                <p class="text-sm text-gray-600">Optional - helps with meal planning</p>
+            </div>
+            <div class="card-body space-y-4">
+                <!-- Serving Size -->
+                <div>
+                    <label for="{{ form.serving_size.id_for_label }}" class="form-label">
+                        Serving Size
+                    </label>
+                    {{ form.serving_size }}
+                    {% if form.serving_size.help_text %}
+                    <p class="text-sm text-gray-600 mt-1">{{ form.serving_size.help_text }}</p>
+                    {% endif %}
+                    {% if form.serving_size.errors %}
+                    <p class="form-error">{{ form.serving_size.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Calories -->
+                <div>
+                    <label for="{{ form.calories.id_for_label }}" class="form-label">
+                        Calories per Serving
+                    </label>
+                    {{ form.calories }}
+                    {% if form.calories.help_text %}
+                    <p class="text-sm text-gray-600 mt-1">{{ form.calories.help_text }}</p>
+                    {% endif %}
+                    {% if form.calories.errors %}
+                    <p class="form-error">{{ form.calories.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Product Details -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="font-medium">Product Details</h3>
+                <p class="text-sm text-gray-600">Additional information about the product</p>
+            </div>
+            <div class="card-body space-y-4">
+                <!-- Description -->
+                <div>
+                    <label for="{{ form.description.id_for_label }}" class="form-label">
+                        Description
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <p class="form-error">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Ingredients -->
+                <div>
+                    <label for="{{ form.ingredients.id_for_label }}" class="form-label">
+                        Ingredients
+                    </label>
+                    {{ form.ingredients }}
+                    {% if form.ingredients.errors %}
+                    <p class="form-error">{{ form.ingredients.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Packaging -->
+                <div>
+                    <label for="{{ form.packaging.id_for_label }}" class="form-label">
+                        Packaging
+                    </label>
+                    {{ form.packaging }}
+                    {% if form.packaging.errors %}
+                    <p class="form-error">{{ form.packaging.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Country -->
+                <div>
+                    <label for="{{ form.country.id_for_label }}" class="form-label">
+                        Country of Origin
+                    </label>
+                    {{ form.country }}
+                    {% if form.country.errors %}
+                    <p class="form-error">{{ form.country.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional Information -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="font-medium">Additional Information</h3>
+                <p class="text-sm text-gray-600">Helps with inventory management</p>
+            </div>
+            <div class="card-body space-y-4">
+                <!-- Average Price -->
+                <div>
+                    <label for="{{ form.average_price.id_for_label }}" class="form-label">
+                        Average Price
+                    </label>
+                    {{ form.average_price }}
+                    {% if form.average_price.errors %}
+                    <p class="form-error">{{ form.average_price.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Shelf Life -->
+                <div>
+                    <label for="{{ form.shelf_life_days.id_for_label }}" class="form-label">
+                        Shelf Life (Days)
+                    </label>
+                    {{ form.shelf_life_days }}
+                    {% if form.shelf_life_days.help_text %}
+                    <p class="text-sm text-gray-600 mt-1">{{ form.shelf_life_days.help_text }}</p>
+                    {% endif %}
+                    {% if form.shelf_life_days.errors %}
+                    <p class="form-error">{{ form.shelf_life_days.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Product Image -->
+                <div>
+                    <label for="{{ form.local_image.id_for_label }}" class="form-label">
+                        Product Image
+                    </label>
+                    {{ form.local_image }}
+                    {% if form.local_image.help_text %}
+                    <p class="text-sm text-gray-600 mt-1">{{ form.local_image.help_text }}</p>
+                    {% endif %}
+                    {% if form.local_image.errors %}
+                    <p class="form-error">{{ form.local_image.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="flex gap-3">
+            <button type="submit" class="btn btn-primary flex-1">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Create Product
+            </button>
+            <a href="{% url 'inventory:add' %}" class="btn btn-outline">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create List from Recipes - Kitchentory{% endblock %}
+
+{% block content %}
+<div class="create-from-recipe max-w-4xl mx-auto px-4 py-6">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center space-x-4 mb-4">
+            <a href="{% url 'shopping:create' %}" 
+               class="text-gray-600 hover:text-gray-900">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+            </a>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Create List from Recipes</h1>
+                <p class="text-gray-600">Select recipes to automatically generate your shopping list</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recipe Selection Form -->
+    <form method="post" class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        {% csrf_token %}
+        
+        <!-- List Details -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label for="list_name" class="block text-sm font-medium text-gray-700 mb-2">
+                    Shopping List Name <span class="text-red-500">*</span>
+                </label>
+                <input type="text" 
+                       id="list_name" 
+                       name="list_name" 
+                       required
+                       placeholder="e.g., Weekly Meal Plan"
+                       class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div>
+                <label for="servings_multiplier" class="block text-sm font-medium text-gray-700 mb-2">
+                    Servings Multiplier
+                </label>
+                <input type="number" 
+                       id="servings_multiplier" 
+                       name="servings_multiplier" 
+                       value="1"
+                       min="0.5"
+                       step="0.5"
+                       class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <p class="mt-1 text-sm text-gray-500">Adjust quantities (1.0 = original servings)</p>
+            </div>
+        </div>
+        
+        <!-- Recipe Search and Filter -->
+        <div class="mb-6">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <label for="recipe_search" class="block text-sm font-medium text-gray-700 mb-2">
+                        Search Recipes
+                    </label>
+                    <input type="text" 
+                           id="recipe_search"
+                           placeholder="Search by name, ingredient, or category..."
+                           onkeyup="filterRecipes()"
+                           class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div class="md:w-48">
+                    <label for="category_filter" class="block text-sm font-medium text-gray-700 mb-2">
+                        Category
+                    </label>
+                    <select id="category_filter" 
+                            onchange="filterRecipes()"
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Selected Recipes Summary -->
+        <div id="selected-summary" class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg hidden">
+            <h3 class="font-medium text-blue-900 mb-2">Selected Recipes</h3>
+            <div id="selected-recipes-list" class="flex flex-wrap gap-2"></div>
+            <p class="text-sm text-blue-700 mt-2">
+                <span id="selected-count">0</span> recipes selected
+            </p>
+        </div>
+        
+        <!-- Recipe Grid -->
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Choose Recipes</h3>
+            <div id="recipe-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for recipe in recipes %}
+                <div class="recipe-card bg-white border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                     data-recipe-id="{{ recipe.id }}"
+                     data-recipe-name="{{ recipe.name|lower }}"
+                     data-category-id="{{ recipe.category.id|default:'' }}"
+                     data-ingredients="{{ recipe.ingredient_names|lower }}">
+                    
+                    <div class="relative">
+                        {% if recipe.image %}
+                        <img src="{{ recipe.image.url }}" 
+                             alt="{{ recipe.name }}"
+                             class="w-full h-32 object-cover">
+                        {% else %}
+                        <div class="w-full h-32 bg-gray-200 flex items-center justify-center">
+                            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Selection checkbox -->
+                        <div class="absolute top-2 right-2">
+                            <input type="checkbox" 
+                                   name="selected_recipes" 
+                                   value="{{ recipe.id }}"
+                                   onchange="updateSelection()"
+                                   class="h-5 w-5 text-blue-600 rounded focus:ring-blue-500 bg-white">
+                        </div>
+                    </div>
+                    
+                    <div class="p-4">
+                        <h4 class="font-medium text-gray-900 mb-1">{{ recipe.name }}</h4>
+                        <p class="text-sm text-gray-600 mb-2">
+                            {{ recipe.servings }} servings • {{ recipe.prep_time|default:"--" }} min
+                        </p>
+                        
+                        {% if recipe.missing_ingredients_count %}
+                        <div class="flex items-center text-sm text-orange-600 mb-2">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            {{ recipe.missing_ingredients_count }} missing ingredients
+                        </div>
+                        {% endif %}
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-gray-500">
+                                {% if recipe.category %}{{ recipe.category.name }}{% endif %}
+                            </span>
+                            <a href="{% url 'recipes:detail' recipe.id %}" 
+                               class="text-xs text-blue-600 hover:text-blue-800"
+                               target="_blank">
+                                View Recipe →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% if not recipes %}
+            <div class="text-center py-8">
+                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No recipes found</h3>
+                <p class="text-gray-600">Try creating some recipes first, or check your search filters.</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Options -->
+        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h3 class="font-medium text-gray-900 mb-3">Options</h3>
+            <div class="space-y-3">
+                <label class="flex items-center">
+                    <input type="checkbox" 
+                           name="consolidate_duplicates" 
+                           checked
+                           class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500">
+                    <span class="ml-2 text-sm text-gray-700">
+                        Consolidate duplicate ingredients
+                    </span>
+                </label>
+                
+                <label class="flex items-center">
+                    <input type="checkbox" 
+                           name="exclude_owned" 
+                           checked
+                           class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500">
+                    <span class="ml-2 text-sm text-gray-700">
+                        Exclude ingredients you already have in inventory
+                    </span>
+                </label>
+                
+                <label class="flex items-center">
+                    <input type="checkbox" 
+                           name="add_suggestions"
+                           class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500">
+                    <span class="ml-2 text-sm text-gray-700">
+                        Add smart suggestions (complementary items)
+                    </span>
+                </label>
+            </div>
+        </div>
+        
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-3">
+            <a href="{% url 'shopping:create' %}" 
+               class="px-4 py-2 text-gray-700 hover:text-gray-900">
+                Cancel
+            </a>
+            <button type="submit" 
+                    id="create-button"
+                    disabled
+                    class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg transition-colors">
+                Create Shopping List
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateSelection() {
+    const checkboxes = document.querySelectorAll('input[name="selected_recipes"]:checked');
+    const count = checkboxes.length;
+    const createButton = document.getElementById('create-button');
+    const summary = document.getElementById('selected-summary');
+    const countSpan = document.getElementById('selected-count');
+    const recipesList = document.getElementById('selected-recipes-list');
+    
+    // Update button state
+    createButton.disabled = count === 0;
+    
+    // Update summary
+    countSpan.textContent = count;
+    
+    if (count > 0) {
+        summary.classList.remove('hidden');
+        
+        // Build selected recipes list
+        recipesList.innerHTML = '';
+        checkboxes.forEach(checkbox => {
+            const recipeCard = checkbox.closest('.recipe-card');
+            const recipeName = recipeCard.querySelector('h4').textContent;
+            
+            const tag = document.createElement('span');
+            tag.className = 'bg-white text-blue-700 px-3 py-1 rounded-full text-sm border border-blue-300';
+            tag.textContent = recipeName;
+            recipesList.appendChild(tag);
+        });
+    } else {
+        summary.classList.add('hidden');
+    }
+}
+
+function filterRecipes() {
+    const searchTerm = document.getElementById('recipe_search').value.toLowerCase();
+    const categoryFilter = document.getElementById('category_filter').value;
+    const recipeCards = document.querySelectorAll('.recipe-card');
+    
+    recipeCards.forEach(card => {
+        const recipeName = card.dataset.recipeName;
+        const ingredients = card.dataset.ingredients;
+        const categoryId = card.dataset.categoryId;
+        
+        let matchesSearch = true;
+        let matchesCategory = true;
+        
+        if (searchTerm) {
+            matchesSearch = recipeName.includes(searchTerm) || ingredients.includes(searchTerm);
+        }
+        
+        if (categoryFilter) {
+            matchesCategory = categoryId === categoryFilter;
+        }
+        
+        if (matchesSearch && matchesCategory) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    updateSelection();
+});
+</script>
+{% endblock %}

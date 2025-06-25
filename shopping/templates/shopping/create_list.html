@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Shopping List - Kitchentory{% endblock %}
+
+{% block content %}
+<div class="create-shopping-list max-w-2xl mx-auto px-4 py-6">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center space-x-4 mb-4">
+            <a href="{% url 'shopping:dashboard' %}" 
+               class="text-gray-600 hover:text-gray-900">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+            </a>
+            <h1 class="text-2xl font-bold text-gray-900">Create Shopping List</h1>
+        </div>
+        <p class="text-gray-600">Create a new shopping list to organize your grocery needs</p>
+    </div>
+    
+    <!-- Form -->
+    <form method="post" class="bg-white rounded-lg shadow-sm border p-6">
+        {% csrf_token %}
+        
+        <!-- List Name -->
+        <div class="mb-6">
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                List Name <span class="text-red-500">*</span>
+            </label>
+            <input type="text" 
+                   id="name" 
+                   name="name" 
+                   required
+                   placeholder="e.g., Weekly Groceries, Party Supplies"
+                   class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        
+        <!-- Description -->
+        <div class="mb-6">
+            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                Description
+            </label>
+            <textarea id="description" 
+                      name="description" 
+                      rows="3"
+                      placeholder="Add notes about this shopping list..."
+                      class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        </div>
+        
+        <!-- Store Selection -->
+        <div class="mb-6">
+            <label for="store" class="block text-sm font-medium text-gray-700 mb-2">
+                Store (Optional)
+            </label>
+            <select id="store" 
+                    name="store"
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select a store...</option>
+                {% for store in stores %}
+                <option value="{{ store.id }}">{{ store.name }}</option>
+                {% endfor %}
+            </select>
+            <p class="mt-1 text-sm text-gray-500">
+                Selecting a store helps optimize your shopping route
+            </p>
+        </div>
+        
+        <!-- Quick Start Options -->
+        <div class="mb-6">
+            <h3 class="text-sm font-medium text-gray-700 mb-3">Quick Start Options</h3>
+            <div class="space-y-3">
+                <a href="{% url 'shopping:create_from_recipe' %}" 
+                   class="block w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        <div>
+                            <p class="font-medium text-gray-900">Create from Recipes</p>
+                            <p class="text-sm text-gray-600">Generate a list from recipe ingredients</p>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="{% url 'shopping:create_from_depleted' %}" 
+                   class="block w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-orange-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        <div>
+                            <p class="font-medium text-gray-900">Low Inventory Items</p>
+                            <p class="text-sm text-gray-600">Add items that are running low</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-3">
+            <a href="{% url 'shopping:dashboard' %}" 
+               class="px-4 py-2 text-gray-700 hover:text-gray-900">
+                Cancel
+            </a>
+            <button type="submit" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
+                Create List
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

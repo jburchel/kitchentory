@@ -1,0 +1,530 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Recipe Discovery - Kitchentory{% endblock %}
+
+{% block content %}
+<div class="discovery-dashboard max-w-7xl mx-auto px-4 py-6">
+    <!-- Header -->
+    <div class="dashboard-header mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Recipe Discovery</h1>
+                <p class="text-gray-600 mt-2">
+                    Find recipes you can make with your 
+                    <span class="font-semibold text-blue-600">{{ inventory_count }} available ingredients</span>
+                </p>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <a href="{% url 'inventory:list' %}" 
+                   class="text-blue-600 hover:text-blue-800 flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    <span>View Inventory</span>
+                </a>
+                
+                <a href="{% url 'recipes:discovery:almost_there' %}" 
+                   class="bg-orange-100 hover:bg-orange-200 text-orange-800 px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span>Almost There</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="stats-grid grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="stat-card bg-green-50 border border-green-200 rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="bg-green-500 rounded-full p-3 mr-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-green-900">{{ perfect_matches|length }}</div>
+                        <div class="text-green-700">Ready to Cook</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card bg-orange-50 border border-orange-200 rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="bg-orange-500 rounded-full p-3 mr-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-orange-900">{{ almost_matches|length }}</div>
+                        <div class="text-orange-700">Almost There</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card bg-blue-50 border border-blue-200 rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="bg-blue-500 rounded-full p-3 mr-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-blue-900">{{ total_recommendations }}</div>
+                        <div class="text-blue-700">Total Matches</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filter Sidebar -->
+    <div class="discovery-content grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div class="lg:col-span-1">
+            <div class="filter-sidebar bg-white rounded-lg shadow-sm border p-6 sticky top-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
+                
+                <!-- Match Type Filter -->
+                <div class="filter-group mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Match Type</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="radio" name="match_type" value="all" checked
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                            <span class="ml-2 text-sm text-gray-700">All Recipes</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="match_type" value="perfect"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                            <span class="ml-2 text-sm text-gray-700">Ready to Cook</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="match_type" value="almost"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                            <span class="ml-2 text-sm text-gray-700">Almost There</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="match_type" value="missing"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                            <span class="ml-2 text-sm text-gray-700">Missing Ingredients</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Category Filter -->
+                <div class="filter-group mb-6">
+                    <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <select id="category" name="category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Max Missing Ingredients -->
+                <div class="filter-group mb-6">
+                    <label for="max_missing" class="block text-sm font-medium text-gray-700 mb-2">
+                        Max Missing Ingredients: <span id="max_missing_value">3</span>
+                    </label>
+                    <input type="range" id="max_missing" name="max_missing" min="0" max="5" value="3"
+                           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+                
+                <!-- Dietary Restrictions -->
+                <div class="filter-group mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Dietary Restrictions</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="vegetarian" value="1"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">Vegetarian</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="vegan" value="1"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">Vegan</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="gluten_free" value="1"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">Gluten-Free</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="dairy_free" value="1"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">Dairy-Free</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="nut_free" value="1"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">Nut-Free</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <button id="apply-filters" 
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                    Apply Filters
+                </button>
+            </div>
+        </div>
+        
+        <!-- Recipe Results -->
+        <div class="lg:col-span-3">
+            <!-- Perfect Matches Section -->
+            {% if perfect_matches %}
+                <div class="recipe-section mb-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                            <span class="bg-green-500 w-3 h-3 rounded-full mr-3"></span>
+                            Ready to Cook
+                        </h2>
+                        <span class="text-sm text-gray-500">{{ perfect_matches|length }} recipe{{ perfect_matches|length|pluralize }}</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {% for match in perfect_matches %}
+                            {% include 'recipes/discovery/components/match_card.html' %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Almost There Section -->
+            {% if almost_matches %}
+                <div class="recipe-section mb-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                            <span class="bg-orange-500 w-3 h-3 rounded-full mr-3"></span>
+                            Almost There
+                        </h2>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-gray-500">{{ almost_matches|length }} recipe{{ almost_matches|length|pluralize }}</span>
+                            <a href="{% url 'recipes:discovery:almost_there' %}" 
+                               class="text-orange-600 hover:text-orange-800 text-sm font-medium">
+                                View All →
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {% for match in almost_matches|slice:":6" %}
+                            {% include 'recipes/discovery/components/match_card.html' %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Dynamic Results Container -->
+            <div id="dynamic-results" class="hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-bold text-gray-900">Filtered Results</h2>
+                    <span id="results-count" class="text-sm text-gray-500"></span>
+                </div>
+                
+                <div id="results-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loading-state" class="hidden text-center py-12">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p class="text-gray-500 mt-2">Finding recipes...</p>
+            </div>
+            
+            <!-- Empty State -->
+            {% if not perfect_matches and not almost_matches %}
+                <div class="empty-state text-center py-12">
+                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No Recipe Matches Found</h3>
+                    <p class="text-gray-500 mb-4">Add more ingredients to your inventory to discover recipes!</p>
+                    <a href="{% url 'inventory:add_item' %}" 
+                       class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Add Ingredients
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+class RecipeDiscovery {
+    constructor() {
+        this.initializeFilters();
+        this.bindEvents();
+    }
+    
+    initializeFilters() {
+        // Update range slider display
+        const maxMissingSlider = document.getElementById('max_missing');
+        const maxMissingValue = document.getElementById('max_missing_value');
+        
+        maxMissingSlider.addEventListener('input', function() {
+            maxMissingValue.textContent = this.value;
+        });
+    }
+    
+    bindEvents() {
+        // Apply filters button
+        document.getElementById('apply-filters').addEventListener('click', () => {
+            this.applyFilters();
+        });
+        
+        // Auto-apply on radio button change
+        document.querySelectorAll('input[name="match_type"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                this.applyFilters();
+            });
+        });
+    }
+    
+    async applyFilters() {
+        // Show loading state
+        this.showLoading();
+        
+        // Collect filter values
+        const formData = new FormData();
+        
+        // Match type
+        const matchType = document.querySelector('input[name="match_type"]:checked');
+        if (matchType) formData.append('match_type', matchType.value);
+        
+        // Category
+        const category = document.getElementById('category');
+        if (category.value) formData.append('category', category.value);
+        
+        // Max missing
+        const maxMissing = document.getElementById('max_missing');
+        formData.append('max_missing', maxMissing.value);
+        
+        // Dietary restrictions
+        document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+            formData.append(checkbox.name, checkbox.value);
+        });
+        
+        // Build query string
+        const params = new URLSearchParams(formData);
+        
+        try {
+            const response = await fetch(`{% url 'recipes:discovery:matches' %}?${params}`);
+            const data = await response.json();
+            
+            this.displayResults(data.matches, data.total);
+        } catch (error) {
+            console.error('Error fetching recipe matches:', error);
+            this.showError();
+        }
+    }
+    
+    displayResults(matches, total) {
+        // Hide static sections
+        document.querySelectorAll('.recipe-section').forEach(section => {
+            section.style.display = 'none';
+        });
+        
+        // Show dynamic results
+        const dynamicResults = document.getElementById('dynamic-results');
+        const resultsGrid = document.getElementById('results-grid');
+        const resultsCount = document.getElementById('results-count');
+        
+        dynamicResults.classList.remove('hidden');
+        resultsCount.textContent = `${total} recipe${total !== 1 ? 's' : ''} found`;
+        
+        // Clear previous results
+        resultsGrid.innerHTML = '';
+        
+        // Add new results
+        matches.forEach(match => {
+            const card = this.createMatchCard(match);
+            resultsGrid.appendChild(card);
+        });
+        
+        this.hideLoading();
+    }
+    
+    createMatchCard(match) {
+        const card = document.createElement('div');
+        card.className = 'recipe-match-card bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow';
+        
+        const matchTypeColor = {
+            'perfect': 'green',
+            'almost': 'orange',
+            'partial': 'yellow'
+        }[match.match.type] || 'gray';
+        
+        card.innerHTML = `
+            <div class="relative">
+                <img src="${match.recipe.image_url}" alt="${match.recipe.title}" 
+                     class="w-full h-48 object-cover">
+                <div class="absolute top-2 left-2">
+                    <span class="bg-${matchTypeColor}-500 text-white text-xs px-2 py-1 rounded-full">
+                        ${match.match.score}% Match
+                    </span>
+                </div>
+                ${match.match.missing_count > 0 ? `
+                    <div class="absolute top-2 right-2">
+                        <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                            ${match.match.missing_count} missing
+                        </span>
+                    </div>
+                ` : ''}
+            </div>
+            
+            <div class="p-4">
+                <h3 class="font-semibold text-gray-900 mb-2">
+                    <a href="/recipes/${match.recipe.slug}/" class="hover:text-blue-600">
+                        ${match.recipe.title}
+                    </a>
+                </h3>
+                
+                <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
+                    <span>${match.recipe.prep_time + match.recipe.cook_time} min</span>
+                    <span>${match.recipe.difficulty}</span>
+                    <span>★ ${match.recipe.rating_average.toFixed(1)}</span>
+                </div>
+                
+                ${match.missing_ingredients.length > 0 ? `
+                    <div class="missing-ingredients mb-3">
+                        <div class="text-xs font-medium text-gray-700 mb-1">Missing:</div>
+                        <div class="text-xs text-gray-600">
+                            ${match.missing_ingredients.map(ing => ing.name).join(', ')}
+                        </div>
+                    </div>
+                ` : ''}
+                
+                <div class="flex items-center justify-between">
+                    ${match.match.estimated_cost > 0 ? `
+                        <span class="text-sm text-gray-600">
+                            +$${match.match.estimated_cost.toFixed(2)}
+                        </span>
+                    ` : '<span></span>'}
+                    
+                    <div class="flex items-center space-x-2">
+                        ${match.match.cookable ? `
+                            <a href="/recipes/${match.recipe.slug}/cooking/" 
+                               class="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1 rounded transition-colors">
+                                Cook Now
+                            </a>
+                        ` : `
+                            <button onclick="addMissingToShoppingList('${match.recipe.slug}')"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded transition-colors">
+                                Add Missing
+                            </button>
+                        `}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        return card;
+    }
+    
+    showLoading() {
+        document.getElementById('loading-state').classList.remove('hidden');
+        document.getElementById('dynamic-results').classList.add('hidden');
+    }
+    
+    hideLoading() {
+        document.getElementById('loading-state').classList.add('hidden');
+    }
+    
+    showError() {
+        this.hideLoading();
+        // Show error message
+        console.error('Failed to load recipe matches');
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    new RecipeDiscovery();
+});
+
+// Global function for adding missing ingredients
+async function addMissingToShoppingList(recipeSlug) {
+    try {
+        const response = await fetch('{% url "recipes:discovery:add_missing" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: JSON.stringify({
+                recipe_slug: recipeSlug
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Show success message
+            alert(`Added ${data.added_items.length} items to shopping list!`);
+        }
+    } catch (error) {
+        console.error('Error adding to shopping list:', error);
+        alert('Failed to add items to shopping list');
+    }
+}
+</script>
+
+<style>
+.recipe-match-card {
+    transition: transform 0.2s ease;
+}
+
+.recipe-match-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Custom range slider styling */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+}
+
+input[type="range"]::-webkit-slider-track {
+    background: #e5e7eb;
+    height: 8px;
+    border-radius: 4px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    background: #3b82f6;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-top: -6px;
+}
+
+input[type="range"]::-moz-range-track {
+    background: #e5e7eb;
+    height: 8px;
+    border-radius: 4px;
+    border: none;
+}
+
+input[type="range"]::-moz-range-thumb {
+    background: #3b82f6;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+</style>
+{% endblock %}

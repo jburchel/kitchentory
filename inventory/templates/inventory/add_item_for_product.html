@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Add {{ product.name }} to Inventory - Kitchentory{% endblock %}
+{% block page_title %}Add to Inventory{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-6 lg:px-8 max-w-2xl mx-auto">
+    <!-- Product Header -->
+    <div class="mb-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="flex items-center space-x-4">
+                    {% if product.local_image %}
+                    <img src="{{ product.local_image.url }}" 
+                         alt="{{ product.name }}" 
+                         class="w-16 h-16 rounded-lg object-cover">
+                    {% elif product.image_url %}
+                    <img src="{{ product.image_url }}" 
+                         alt="{{ product.name }}" 
+                         class="w-16 h-16 rounded-lg object-cover">
+                    {% else %}
+                    <div class="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center">
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="flex-1">
+                        <h2 class="text-lg font-semibold text-gray-900">{{ product.name }}</h2>
+                        {% if product.brand %}
+                        <p class="text-gray-600">{{ product.brand }}</p>
+                        {% endif %}
+                        <p class="text-sm text-gray-500">
+                            {{ product.category.name }}
+                            {% if product.barcode %} • {{ product.barcode }}{% endif %}
+                        </p>
+                    </div>
+                    
+                    <div class="text-right">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            New Product
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add to Inventory Form -->
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Quantity and Unit -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="font-medium">Quantity & Storage</h3>
+            </div>
+            <div class="card-body space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Quantity -->
+                    <div>
+                        <label for="{{ form.quantity.id_for_label }}" class="form-label">
+                            Quantity
+                        </label>
+                        {{ form.quantity }}
+                        {% if form.quantity.errors %}
+                        <p class="form-error">{{ form.quantity.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Unit -->
+                    <div>
+                        <label for="{{ form.unit.id_for_label }}" class="form-label">
+                            Unit
+                        </label>
+                        {{ form.unit }}
+                        {% if form.unit.errors %}
+                        <p class="form-error">{{ form.unit.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Storage Location -->
+                <div>
+                    <label for="{{ form.location.id_for_label }}" class="form-label">
+                        Storage Location
+                    </label>
+                    {{ form.location }}
+                    {% if form.location.errors %}
+                    <p class="form-error">{{ form.location.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dates -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="font-medium">Dates</h3>
+            </div>
+            <div class="card-body space-y-4">
+                <!-- Purchase Date -->
+                <div>
+                    <label for="{{ form.purchase_date.id_for_label }}" class="form-label">
+                        Purchase Date
+                    </label>
+                    {{ form.purchase_date }}
+                    {% if form.purchase_date.errors %}
+                    <p class="form-error">{{ form.purchase_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Expiration Date -->
+                <div>
+                    <label for="{{ form.expiration_date.id_for_label }}" class="form-label">
+                        Expiration Date
+                    </label>
+                    {{ form.expiration_date }}
+                    {% if product.shelf_life_days %}
+                    <p class="text-sm text-gray-600 mt-1">
+                        Typical shelf life: {{ product.shelf_life_days }} days
+                    </p>
+                    {% endif %}
+                    {% if form.expiration_date.errors %}
+                    <p class="form-error">{{ form.expiration_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional Info -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="font-medium">Additional Information</h3>
+            </div>
+            <div class="card-body space-y-4">
+                <!-- Price -->
+                <div>
+                    <label for="{{ form.price.id_for_label }}" class="form-label">
+                        Price Paid
+                    </label>
+                    {{ form.price }}
+                    {% if product.average_price %}
+                    <p class="text-sm text-gray-600 mt-1">
+                        Average price: ${{ product.average_price }}
+                    </p>
+                    {% endif %}
+                    {% if form.price.errors %}
+                    <p class="form-error">{{ form.price.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Notes -->
+                <div>
+                    <label for="{{ form.notes.id_for_label }}" class="form-label">
+                        Notes
+                    </label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                    <p class="form-error">{{ form.notes.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hidden product field -->
+        {{ form.product }}
+        
+        <!-- Actions -->
+        <div class="flex gap-3">
+            <button type="submit" class="btn btn-primary flex-1">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Add to Inventory
+            </button>
+            <a href="{% url 'inventory:list' %}" class="btn btn-outline">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

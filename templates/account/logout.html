@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Sign Out - Kitchentory{% endblock %}
+{% block page_title %}Sign Out{% endblock %}
+
+{% block header %}
+<!-- Simplified header for auth pages -->
+<header class="bg-white shadow-sm safe-area-inset-top">
+    <div class="px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex items-center">
+                <a href="{% url 'home' %}" class="text-xl font-semibold text-gray-900">
+                    Kitchentory
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+{% endblock %}
+
+{% block navigation %}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <!-- Header -->
+        <div class="text-center">
+            <div class="w-16 h-16 bg-gray-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900">
+                Sign out
+            </h2>
+            <p class="mt-2 text-sm text-gray-600">
+                Are you sure you want to sign out?
+            </p>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white py-8 px-6 shadow-lg rounded-lg border border-gray-200">
+            <form method="POST" action="{% url 'account_logout' %}">
+                {% csrf_token %}
+                {% if redirect_field_value %}
+                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+                {% endif %}
+                
+                <div class="space-y-4">
+                    <button type="submit" class="w-full btn btn-primary text-lg py-3 font-semibold">
+                        Sign out
+                    </button>
+                    
+                    <a href="{% url 'home' %}" class="w-full btn bg-gray-200 text-gray-700 hover:bg-gray-300 text-lg py-3 font-semibold inline-flex items-center justify-center transition-colors">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Additional info -->
+        <div class="text-center">
+            <p class="text-xs text-gray-500">
+                You'll need to sign in again to access your kitchen inventory
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

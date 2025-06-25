@@ -1,0 +1,525 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ recipe.title }} - Print Recipe{% endblock %}
+
+{% block extra_head %}
+    <style>
+        @media print {
+            /* Hide all non-essential elements */
+            nav, .recipe-actions, .thumbnail-navigation, .step-checkbox, 
+            .ingredient-checkbox, button, .print-hide, #imageLightbox {
+                display: none !important;
+            }
+            
+            /* Reset margins and padding for clean print */
+            body {
+                margin: 0;
+                padding: 20px;
+                font-size: 12pt;
+                line-height: 1.4;
+                color: #000;
+                background: white;
+            }
+            
+            .recipe-detail-container {
+                max-width: none;
+                padding: 0;
+                margin: 0;
+            }
+            
+            /* Header styling */
+            .recipe-header {
+                margin-bottom: 20px;
+                page-break-inside: avoid;
+            }
+            
+            .recipe-header h1 {
+                font-size: 24pt;
+                font-weight: bold;
+                margin-bottom: 10px;
+                color: #000;
+            }
+            
+            .recipe-header p {
+                font-size: 14pt;
+                margin-bottom: 15px;
+            }
+            
+            /* Stats grid */
+            .recipe-stats {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 15px;
+                padding: 15px;
+                border: 2px solid #000;
+                margin-bottom: 20px;
+                page-break-inside: avoid;
+            }
+            
+            .recipe-stats > div {
+                text-align: center;
+                border-right: 1px solid #ccc;
+            }
+            
+            .recipe-stats > div:last-child {
+                border-right: none;
+            }
+            
+            .recipe-stats .text-2xl {
+                font-size: 18pt;
+                font-weight: bold;
+            }
+            
+            .recipe-stats .text-sm {
+                font-size: 10pt;
+            }
+            
+            /* Main content layout */
+            .recipe-content {
+                display: block;
+            }
+            
+            /* Image styling */
+            .recipe-image-section {
+                float: right;
+                width: 250px;
+                margin: 0 0 20px 20px;
+                page-break-inside: avoid;
+            }
+            
+            .recipe-image-section img {
+                width: 100%;
+                height: auto;
+                border: 1px solid #ccc;
+            }
+            
+            /* Ingredients section */
+            .recipe-ingredients {
+                margin-bottom: 30px;
+                page-break-inside: avoid;
+            }
+            
+            .recipe-ingredients h2 {
+                font-size: 18pt;
+                font-weight: bold;
+                margin-bottom: 15px;
+                border-bottom: 2px solid #000;
+                padding-bottom: 5px;
+            }
+            
+            .ingredients-list {
+                margin-left: 0;
+            }
+            
+            .ingredient-item {
+                display: flex;
+                margin-bottom: 8px;
+                padding: 5px 0;
+                border-bottom: 1px dotted #ccc;
+                break-inside: avoid;
+            }
+            
+            .ingredient-item .ingredient-quantity-name {
+                font-weight: normal;
+            }
+            
+            /* Instructions section */
+            .recipe-instructions {
+                clear: both;
+                margin-top: 30px;
+            }
+            
+            .recipe-instructions h2 {
+                font-size: 18pt;
+                font-weight: bold;
+                margin-bottom: 15px;
+                border-bottom: 2px solid #000;
+                padding-bottom: 5px;
+            }
+            
+            .instruction-step {
+                margin-bottom: 20px;
+                page-break-inside: avoid;
+            }
+            
+            .step-number {
+                float: left;
+                width: 25px;
+                height: 25px;
+                background: #000;
+                color: white;
+                border-radius: 50%;
+                text-align: center;
+                line-height: 25px;
+                font-weight: bold;
+                margin-right: 15px;
+                font-size: 12pt;
+            }
+            
+            .step-content {
+                margin-left: 40px;
+            }
+            
+            .step-content h4 {
+                font-size: 14pt;
+                font-weight: bold;
+                margin-bottom: 8px;
+            }
+            
+            .step-instruction {
+                font-size: 12pt;
+                line-height: 1.5;
+                margin-bottom: 10px;
+            }
+            
+            .step-meta {
+                font-size: 10pt;
+                color: #666;
+                margin-bottom: 10px;
+            }
+            
+            .step-tips {
+                background: #f5f5f5;
+                border-left: 4px solid #000;
+                padding: 10px;
+                margin: 10px 0;
+                font-size: 11pt;
+            }
+            
+            /* Nutrition info */
+            .nutrition-info {
+                border: 1px solid #ccc;
+                padding: 15px;
+                margin-bottom: 20px;
+                page-break-inside: avoid;
+            }
+            
+            .nutrition-info h3 {
+                font-size: 14pt;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+            
+            .nutrition-item {
+                display: flex;
+                justify-content: space-between;
+                padding: 5px 0;
+                border-bottom: 1px dotted #ccc;
+            }
+            
+            /* Tags */
+            .recipe-tags-section {
+                margin-bottom: 20px;
+            }
+            
+            .recipe-tags-section span {
+                display: inline-block;
+                margin-right: 10px;
+                margin-bottom: 5px;
+                padding: 3px 8px;
+                border: 1px solid #ccc;
+                font-size: 10pt;
+            }
+            
+            /* Page breaks */
+            .page-break {
+                page-break-before: always;
+            }
+            
+            /* Footer with source info */
+            .print-footer {
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                right: 20px;
+                font-size: 10pt;
+                color: #666;
+                border-top: 1px solid #ccc;
+                padding-top: 10px;
+                text-align: center;
+            }
+            
+            /* Ensure good contrast for printing */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+        }
+        
+        /* Screen-only styles for print preview */
+        @media screen {
+            .print-preview {
+                max-width: 8.5in;
+                margin: 0 auto;
+                background: white;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                padding: 1in;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="recipe-detail-container max-w-4xl mx-auto px-4 py-6 print-preview">
+    <!-- Print Header -->
+    <div class="print-only hidden print:block text-center mb-6">
+        <h1 class="text-2xl font-bold">Recipe from Kitchentory</h1>
+        <p class="text-sm text-gray-500">Printed on {{ "now"|date:"F j, Y" }}</p>
+    </div>
+    
+    <!-- Recipe Header -->
+    <div class="recipe-header mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ recipe.title }}</h1>
+        
+        {% if recipe.description %}
+            <p class="text-lg text-gray-600 mb-4">{{ recipe.description }}</p>
+        {% endif %}
+        
+        <!-- Recipe meta info -->
+        <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-4">
+            {% if recipe.author %}
+                <div class="flex items-center">
+                    <span>By {{ recipe.author }}</span>
+                </div>
+            {% endif %}
+            
+            {% if recipe.source_name %}
+                <div class="flex items-center">
+                    <span>Source: {{ recipe.source_name }}</span>
+                    {% if recipe.source_url %}
+                        <span class="ml-2 text-xs break-all">({{ recipe.source_url }})</span>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Recipe stats -->
+        <div class="recipe-stats grid grid-cols-4 gap-4 p-6 bg-gray-50 rounded-lg print:bg-white print:border-2 print:border-black">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900">{{ recipe.prep_time|default:"—" }}</div>
+                <div class="text-sm text-gray-500">Prep Time{% if recipe.prep_time %} (min){% endif %}</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900">{{ recipe.cook_time|default:"—" }}</div>
+                <div class="text-sm text-gray-500">Cook Time{% if recipe.cook_time %} (min){% endif %}</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900">{{ recipe.servings }}</div>
+                <div class="text-sm text-gray-500">{{ recipe.get_serving_unit_display }}</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900">{{ recipe.get_difficulty_display }}</div>
+                <div class="text-sm text-gray-500">Difficulty</div>
+            </div>
+        </div>
+        
+        <!-- Tags and dietary info -->
+        <div class="recipe-tags-section mt-4">
+            {% if recipe.tags.exists or recipe.is_vegetarian or recipe.is_vegan or recipe.is_gluten_free or recipe.is_dairy_free or recipe.is_nut_free %}
+                <div class="flex flex-wrap gap-2">
+                    <!-- Dietary tags -->
+                    {% if recipe.is_vegan %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800 print:bg-white print:border print:border-gray-400">
+                            Vegan
+                        </span>
+                    {% elif recipe.is_vegetarian %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800 print:bg-white print:border print:border-gray-400">
+                            Vegetarian
+                        </span>
+                    {% endif %}
+                    
+                    {% if recipe.is_gluten_free %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800 print:bg-white print:border print:border-gray-400">
+                            Gluten-Free
+                        </span>
+                    {% endif %}
+                    
+                    {% if recipe.is_dairy_free %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800 print:bg-white print:border print:border-gray-400">
+                            Dairy-Free
+                        </span>
+                    {% endif %}
+                    
+                    {% if recipe.is_nut_free %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-orange-100 text-orange-800 print:bg-white print:border print:border-gray-400">
+                            Nut-Free
+                        </span>
+                    {% endif %}
+                    
+                    <!-- Recipe tags -->
+                    {% for tag in recipe.tags.all %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700 print:bg-white print:border print:border-gray-400">
+                            {{ tag.name }}
+                        </span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Recipe Content -->
+    <div class="recipe-content grid grid-cols-1 lg:grid-cols-3 gap-8 print:block">
+        <!-- Left Column: Image and Nutrition (will float right on print) -->
+        <div class="lg:col-span-1 print:float-right print:w-64 print:ml-6">
+            <!-- Recipe Image -->
+            <div class="recipe-image-section mb-6">
+                <div class="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden print:aspect-none">
+                    <img src="{{ recipe.get_image_url:'large' }}" 
+                         alt="{{ recipe.title }}"
+                         class="w-full h-full object-cover print:w-full print:h-auto">
+                </div>
+            </div>
+            
+            <!-- Nutrition Information -->
+            {% include 'recipes/components/nutrition_info.html' %}
+        </div>
+        
+        <!-- Right Column: Ingredients and Instructions -->
+        <div class="lg:col-span-2 print:block">
+            <!-- Ingredients -->
+            <div class="recipe-ingredients mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Ingredients</h2>
+                
+                <div class="ingredients-list space-y-3">
+                    {% regroup recipe.ingredients.all by group as ingredient_groups %}
+                    {% for group in ingredient_groups %}
+                        {% if group.grouper %}
+                            <h4 class="font-semibold text-gray-900 mt-6 mb-3 border-b border-gray-200 pb-2 print:font-bold print:text-base">{{ group.grouper }}</h4>
+                        {% endif %}
+                        
+                        {% for ingredient in group.list %}
+                            <div class="ingredient-item flex items-start space-x-3 p-3 rounded-lg print:p-1 print:space-x-2">
+                                <input type="checkbox" 
+                                       class="ingredient-checkbox mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded print:hidden">
+                                <div class="flex-1">
+                                    <div class="ingredient-quantity-name font-medium text-gray-900 print:font-normal">
+                                        {{ ingredient.full_description }}
+                                    </div>
+                                    {% if ingredient.notes %}
+                                        <div class="text-sm text-gray-500 mt-1 print:text-xs">{{ ingredient.notes }}</div>
+                                    {% endif %}
+                                    {% if ingredient.is_optional %}
+                                        <span class="inline-block mt-1 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded print:text-xs print:border print:bg-white">Optional</span>
+                                    {% endif %}
+                                    {% if ingredient.is_garnish %}
+                                        <span class="inline-block mt-1 text-xs bg-green-100 text-green-600 px-2 py-1 rounded print:text-xs print:border print:bg-white">Garnish</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Instructions -->
+            <div class="recipe-instructions print:clear-both print:pt-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Instructions</h2>
+                
+                <div class="instructions-list space-y-6">
+                    {% for step in recipe.steps.all %}
+                        <div class="instruction-step" id="step-{{ step.step_number }}">
+                            <div class="flex items-start space-x-4 print:block print:space-x-0">
+                                <div class="step-number flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold print:float-left print:mr-4 print:bg-black">
+                                    {{ step.step_number }}
+                                </div>
+                                
+                                <div class="step-content flex-1 print:ml-12">
+                                    {% if step.title %}
+                                        <h4 class="font-semibold text-gray-900 mb-2 print:font-bold">{{ step.title }}</h4>
+                                    {% endif %}
+                                    
+                                    <div class="step-instruction text-gray-700 leading-relaxed mb-3 print:text-black print:leading-normal">
+                                        {{ step.instruction|linebreaks }}
+                                    </div>
+                                    
+                                    <!-- Step metadata -->
+                                    {% if step.time_minutes or step.temperature or step.equipment_needed %}
+                                        <div class="step-meta flex flex-wrap gap-4 text-sm text-gray-500 mb-3 print:text-xs print:text-gray-700">
+                                            {% if step.time_minutes %}
+                                                <div class="flex items-center">
+                                                    <span class="mr-1">⏱</span>
+                                                    {{ step.time_display }}
+                                                </div>
+                                            {% endif %}
+                                            
+                                            {% if step.temperature %}
+                                                <div class="flex items-center">
+                                                    <span class="mr-1">🌡</span>
+                                                    {{ step.temperature_display }}
+                                                </div>
+                                            {% endif %}
+                                            
+                                            {% if step.equipment_needed %}
+                                                <div class="flex items-center">
+                                                    <span class="mr-1">🔧</span>
+                                                    {{ step.equipment_needed }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <!-- Step tips -->
+                                    {% if step.tips %}
+                                        <div class="step-tips bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-3 print:bg-gray-100 print:border-l-4 print:border-black">
+                                            <div class="flex items-start">
+                                                <div>
+                                                    <p class="text-sm font-medium text-yellow-800 print:text-black print:font-bold">Tip</p>
+                                                    <p class="text-sm text-yellow-700 mt-1 print:text-black">{{ step.tips }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <!-- Mark as completed -->
+                                    <div class="step-completion mt-3 print:hidden">
+                                        <label class="flex items-center text-sm text-gray-600">
+                                            <input type="checkbox" 
+                                                   class="step-checkbox mr-2 h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                            Mark as completed
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Print Footer -->
+    <div class="print-footer hidden print:block">
+        <p>Recipe from Kitchentory | Printed {{ "now"|date:"F j, Y" }} | 
+        {% if recipe.source_url %}Original: {{ recipe.source_url }}{% endif %}</p>
+    </div>
+</div>
+
+<!-- Print Button (screen only) -->
+<div class="fixed bottom-6 right-6 print:hidden">
+    <button onclick="window.print()" 
+            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+        </svg>
+        <span>Print Recipe</span>
+    </button>
+</div>
+
+<script>
+// Print functionality
+function printRecipe() {
+    window.print();
+}
+
+// Auto-focus print dialog when page loads if print parameter is present
+window.addEventListener('load', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('print') === 'true') {
+        setTimeout(() => {
+            window.print();
+        }, 500);
+    }
+});
+</script>
+{% endblock %}

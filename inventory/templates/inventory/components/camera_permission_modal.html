@@ -1,0 +1,212 @@
+<!-- Camera Permission Modal -->
+<div x-data="cameraPermissionModal()" 
+     x-show="showModal" 
+     x-cloak
+     class="fixed inset-0 z-50 overflow-y-auto"
+     x-transition:enter="ease-out duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0">
+    
+    <!-- Modal backdrop -->
+    <div class="fixed inset-0 bg-black bg-opacity-50" @click="closeModal()"></div>
+    
+    <!-- Modal content -->
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95">
+            
+            <!-- Permission Request Screen -->
+            <div x-show="currentStep === 'request'">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </div>
+                    
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">
+                        Enable Camera Access
+                    </h3>
+                    
+                    <p class="text-sm text-gray-600 mb-6">
+                        To scan barcodes, we need access to your camera. Your camera data stays on your device and is never uploaded to our servers.
+                    </p>
+                    
+                    <div class="flex space-x-3">
+                        <button type="button" 
+                                class="flex-1 btn btn-primary"
+                                @click="requestPermission()">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0118.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            Enable Camera
+                        </button>
+                        <button type="button" 
+                                class="btn btn-outline"
+                                @click="skipToManual()">
+                            Skip
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Permission Checking Screen -->
+            <div x-show="currentStep === 'checking'">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4">
+                        <svg class="animate-spin h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                    </div>
+                    
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">
+                        Checking Camera Access
+                    </h3>
+                    
+                    <p class="text-sm text-gray-600">
+                        Please allow camera access when prompted by your browser.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Permission Denied Screen -->
+            <div x-show="currentStep === 'denied'">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                        <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                    </div>
+                    
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">
+                        Camera Access Denied
+                    </h3>
+                    
+                    <p class="text-sm text-gray-600 mb-4" x-text="permissionError"></p>
+                    
+                    <!-- Browser-specific instructions -->
+                    <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                        <h4 class="text-sm font-medium text-blue-900 mb-2">How to enable camera access:</h4>
+                        <div class="text-sm text-blue-800 space-y-1">
+                            <p><strong>Chrome/Edge:</strong> Click the camera icon in the address bar</p>
+                            <p><strong>Safari:</strong> Go to Safari → Settings → Websites → Camera</p>
+                            <p><strong>Firefox:</strong> Click the shield icon in the address bar</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button type="button" 
+                                class="flex-1 btn btn-primary"
+                                @click="requestPermission()">
+                            Try Again
+                        </button>
+                        <button type="button" 
+                                class="btn btn-outline"
+                                @click="skipToManual()">
+                            Enter Manually
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Unsupported Browser Screen -->
+            <div x-show="currentStep === 'unsupported'">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 mb-4">
+                        <svg class="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">
+                        Camera Not Supported
+                    </h3>
+                    
+                    <p class="text-sm text-gray-600 mb-4" x-text="permissionError"></p>
+                    
+                    <div class="bg-orange-50 rounded-lg p-4 mb-6">
+                        <h4 class="text-sm font-medium text-orange-900 mb-2">Recommended browsers:</h4>
+                        <div class="text-sm text-orange-800 space-y-1">
+                            <p><strong>iOS:</strong> Safari 14.3+ or Chrome 90+</p>
+                            <p><strong>Android:</strong> Chrome 70+ or Firefox 80+</p>
+                            <p><strong>Desktop:</strong> Chrome, Firefox, or Safari</p>
+                        </div>
+                    </div>
+                    
+                    <button type="button" 
+                            class="w-full btn btn-primary"
+                            @click="skipToManual()">
+                        Enter Barcode Manually
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function cameraPermissionModal() {
+    return {
+        showModal: false,
+        currentStep: 'request', // request, checking, denied, unsupported
+        permissionError: '',
+        onSuccess: null,
+        onSkip: null,
+        
+        open(onSuccess = null, onSkip = null) {
+            this.onSuccess = onSuccess;
+            this.onSkip = onSkip;
+            this.currentStep = 'request';
+            this.showModal = true;
+        },
+        
+        closeModal() {
+            this.showModal = false;
+        },
+        
+        async requestPermission() {
+            this.currentStep = 'checking';
+            
+            try {
+                const permission = await checkCameraPermission();
+                
+                if (permission.granted) {
+                    this.closeModal();
+                    if (this.onSuccess) {
+                        this.onSuccess();
+                    }
+                } else {
+                    this.permissionError = permission.reason || 'Camera access was denied.';
+                    
+                    // Determine if it's an unsupported browser or permission denied
+                    if (permission.reason && permission.reason.includes('not supported')) {
+                        this.currentStep = 'unsupported';
+                    } else {
+                        this.currentStep = 'denied';
+                    }
+                }
+            } catch (error) {
+                this.permissionError = 'An unexpected error occurred: ' + error.message;
+                this.currentStep = 'denied';
+            }
+        },
+        
+        skipToManual() {
+            this.closeModal();
+            if (this.onSkip) {
+                this.onSkip();
+            }
+        }
+    }
+}
+</script>

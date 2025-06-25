@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Sign In - Kitchentory{% endblock %}
+{% block page_title %}Sign In{% endblock %}
+
+{% block header %}
+<!-- Simplified header for auth pages -->
+<header class="bg-white shadow-sm safe-area-inset-top">
+    <div class="px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex items-center">
+                <a href="{% url 'home' %}" class="text-xl font-semibold text-gray-900">
+                    Kitchentory
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+{% endblock %}
+
+{% block navigation %}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-10">
+        <!-- Header -->
+        <div class="text-center">
+            <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900">
+                Welcome back
+            </h2>
+            <p class="mt-2 text-sm text-gray-600">
+                Sign in to your Kitchentory account
+            </p>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white py-10 px-8 shadow-xl rounded-xl border border-gray-100">
+            <form class="space-y-8" method="POST" action="{% url 'account_login' %}">
+                {% csrf_token %}
+                
+                <!-- Email Field -->
+                <div>
+                    <label for="{{ form.login.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {% if form.login.label %}{{ form.login.label }}{% else %}Email address{% endif %}
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
+                            </svg>
+                        </div>
+                        {{ form.login }}
+                    </div>
+                    {% if form.login.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {{ form.login.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Password Field -->
+                <div>
+                    <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Password
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                        </div>
+                        {{ form.password }}
+                    </div>
+                    {% if form.password.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {{ form.password.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        {{ form.remember }}
+                        <label for="{{ form.remember.id_for_label }}" class="ml-2 block text-sm text-gray-700">
+                            Remember me
+                        </label>
+                    </div>
+                    
+                    <div class="text-sm">
+                        <a href="{% url 'account_reset_password' %}" class="font-medium text-primary hover:text-primary-dark transition-colors">
+                            Forgot your password?
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Non-field errors -->
+                {% if form.non_field_errors %}
+                    <div class="rounded-md bg-red-50 p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <div class="text-sm text-red-700">
+                                    {{ form.non_field_errors }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Submit Button -->
+                <div>
+                    <button type="submit" class="w-full btn btn-primary text-lg py-3 font-semibold hover:bg-primary-dark transition-colors">
+                        Sign in
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sign up link -->
+        <div class="text-center">
+            <p class="text-sm text-gray-600">
+                Don't have an account?
+                <a href="{% url 'account_signup' %}" class="font-medium text-primary hover:text-primary-dark transition-colors">
+                    Create one now
+                </a>
+            </p>
+        </div>
+
+        <!-- Redirect field -->
+        {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+        {% endif %}
+    </div>
+</div>
+
+<style>
+/* Custom styling for form fields */
+#id_login, #id_password {
+    @apply w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors;
+}
+
+#id_remember {
+    @apply h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded;
+}
+
+.errorlist {
+    @apply list-none p-0 m-0;
+}
+
+.errorlist li {
+    @apply text-red-600 text-sm;
+}
+</style>
+{% endblock %}

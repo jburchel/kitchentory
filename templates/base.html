@@ -1,0 +1,212 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Kitchentory">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="msapplication-TileColor" content="#2563eb">
+    
+    <title>{% block title %}Kitchentory{% endblock %}</title>
+    <meta name="description" content="Smart kitchen management - track inventory, discover recipes, manage shopping lists">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/icon-32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/icon-16.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/icon-180.png' %}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{% static 'images/icon-152.png' %}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{% static 'images/icon-144.png' %}">
+    <link rel="apple-touch-icon" sizes="120x120" href="{% static 'images/icon-120.png' %}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{% static 'images/icon-114.png' %}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{% static 'images/icon-76.png' %}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{% static 'images/icon-72.png' %}">
+    <link rel="apple-touch-icon" sizes="60x60" href="{% static 'images/icon-60.png' %}">
+    <link rel="apple-touch-icon" sizes="57x57" href="{% static 'images/icon-57.png' %}">
+    
+    <!-- CSS -->
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <link href="{% static 'css/mobile.css' %}" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Alpine.js for interactivity -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- HTMX for dynamic updates -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    
+    <!-- HTML5 QR Code Scanner -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+    
+    <!-- Heroicons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/heroicons/2.0.18/styles.min.css">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="h-full bg-gray-50" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main" class="sr-only focus:not-sr-only">Skip to main content</a>
+    
+    <!-- Main container -->
+    <div class="h-full flex flex-col">
+        {% block header %}
+        <!-- Header -->
+        <header class="bg-white shadow-sm safe-area-inset-top">
+            <div class="px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center">
+                        <h1 class="text-xl font-semibold text-gray-900">
+                            {% block page_title %}Kitchentory{% endblock %}
+                        </h1>
+                    </div>
+                    
+                    {% if user.is_authenticated %}
+                    <div class="flex items-center space-x-4">
+                        <button type="button" class="p-2 text-gray-500 hover:text-gray-700 tap-target">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                            <span class="sr-only">Search</span>
+                        </button>
+                        
+                        <button type="button" class="p-2 text-gray-500 hover:text-gray-700 tap-target">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <span class="sr-only">Notifications</span>
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+        {% endblock %}
+        
+        <!-- Main content -->
+        <main id="main" class="flex-1 overflow-y-auto">
+            <!-- Messages -->
+            {% if messages %}
+            <div class="px-4 py-2 space-y-2">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} flex items-center justify-between" x-data="{ show: true }" x-show="show" x-transition>
+                    <span>{{ message }}</span>
+                    <button @click="show = false" class="ml-4 text-current opacity-75 hover:opacity-100">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% block content %}{% endblock %}
+        </main>
+        
+        {% block navigation %}
+        {% if user.is_authenticated %}
+        <!-- Bottom navigation for mobile -->
+        <nav class="mobile-nav sm:hidden">
+            <div class="grid grid-cols-5 gap-1">
+                <a href="{% url 'home' %}" class="mobile-nav-item haptic-light {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    <span class="text-xs mt-1">Home</span>
+                </a>
+                
+                <a href="{% url 'inventory:dashboard' %}" class="mobile-nav-item haptic-light {% if 'inventory' in request.resolver_match.namespace %}active{% endif %}">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    <span class="text-xs mt-1">Inventory</span>
+                </a>
+                
+                <!-- FAB in thumb zone -->
+                <div class="thumb-zone">
+                    <button type="button" class="fab haptic-medium" data-bottom-sheet="quick-add-sheet">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span class="sr-only">Quick add</span>
+                    </button>
+                </div>
+                
+                <a href="{% url 'recipes:list' %}" class="mobile-nav-item haptic-light {% if 'recipes' in request.resolver_match.namespace %}active{% endif %}">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                    <span class="text-xs mt-1">Recipes</span>
+                </a>
+                
+                <a href="{% url 'inventory:dashboard' %}" class="mobile-nav-item haptic-light {% if 'inventory' in request.resolver_match.namespace %}active{% endif %}">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                    <span class="text-xs mt-1">Inventory</span>
+                </a>
+            </div>
+        </nav>
+        {% endif %}
+        {% endblock %}
+    </div>
+    
+    <!-- Connection Status Bar -->
+    <div id="connection-status" class="connection-status offline" style="display: none;">
+        You're offline - changes will sync when connected
+    </div>
+
+    {% block scripts %}
+    <!-- Core JavaScript -->
+    <script src="{% static 'js/offline.js' %}"></script>
+    <script src="{% static 'js/pwa.js' %}"></script>
+    <script src="{% static 'js/mobile.js' %}"></script>
+    <script src="{% static 'js/image-optimization.js' %}"></script>
+    
+    <!-- Barcode Scanner Module -->
+    <script src="{% static 'js/barcode-scanner.js' %}"></script>
+    
+    <script>
+        // PWA install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Show install button if needed
+        });
+        
+        // HTMX config
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+        });
+        
+        // Barcode scanner event listeners
+        window.addEventListener('barcodeScanned', (event) => {
+            const barcodeData = event.detail;
+            console.log('Barcode scanned:', barcodeData);
+            
+            // Dispatch HTMX event to process barcode
+            htmx.trigger(document.body, 'barcode:scanned', { 
+                barcode: barcodeData.text,
+                format: barcodeData.format 
+            });
+        });
+        
+        window.addEventListener('barcodeScanError', (event) => {
+            const error = event.detail.error;
+            console.error('Barcode scan error:', error);
+            
+            // Show user-friendly error message
+            htmx.trigger(document.body, 'barcode:error', { error });
+        });
+    </script>
+    {% endblock %}
+</body>
+</html>

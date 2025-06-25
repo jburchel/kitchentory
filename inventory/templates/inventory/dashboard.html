@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Inventory Dashboard - Kitchentory{% endblock %}
+{% block page_title %}Inventory{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-6 lg:px-8">
+    <!-- Quick Actions -->
+    <div class="mb-6 flex flex-wrap gap-3">
+        <a href="{% url 'inventory:add' %}" class="btn btn-primary">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Add Item
+        </a>
+        <a href="{% url 'inventory:list' %}" class="btn btn-outline">
+            View All Items
+        </a>
+        <a href="{% url 'inventory:storage_locations' %}" class="btn btn-outline">
+            Manage Locations
+        </a>
+    </div>
+    
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="card">
+            <div class="card-body">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 p-3 bg-primary-light rounded-lg">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">Total Items</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ stats.total_items }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 p-3 bg-warning rounded-lg bg-opacity-10">
+                        <svg class="w-6 h-6 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">Expiring Soon</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ stats.expiring_soon }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 p-3 bg-danger rounded-lg bg-opacity-10">
+                        <svg class="w-6 h-6 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">Expired</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ stats.expired }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 p-3 bg-info rounded-lg bg-opacity-10">
+                        <svg class="w-6 h-6 text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">Categories</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ stats.categories|length }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Expiring Items -->
+    {% if expiring_items %}
+    <div class="mb-8">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Items Expiring Soon</h2>
+        <div class="grid gap-3">
+            {% for item in expiring_items %}
+            <div class="card {% if item.is_expired %}border-danger{% else %}border-warning{% endif %}">
+                <div class="card-body">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-medium">{{ item.product.name }}</h3>
+                            <p class="text-sm text-gray-600">
+                                {{ item.quantity }} {{ item.get_unit_display }}
+                                {% if item.location %} • {{ item.location.name }}{% endif %}
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            {% if item.is_expired %}
+                                <span class="text-danger font-medium">Expired</span>
+                            {% else %}
+                                <span class="text-warning font-medium">{{ item.days_until_expiration }} days</span>
+                            {% endif %}
+                            <p class="text-sm text-gray-600">{{ item.expiration_date }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Recent Items -->
+    {% if recent_items %}
+    <div>
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Recently Added</h2>
+        <div class="grid gap-3">
+            {% for item in recent_items %}
+            <a href="{% url 'inventory:detail' item.id %}" class="card hover:shadow-md transition-shadow">
+                <div class="card-body">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-medium">{{ item.product.name }}</h3>
+                            <p class="text-sm text-gray-600">
+                                {{ item.quantity }} {{ item.get_unit_display }}
+                                {% if item.location %} • {{ item.location.name }}{% endif %}
+                            </p>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            {{ item.created_at|timesince }} ago
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+        </svg>
+        <p class="text-gray-600 mb-4">Your inventory is empty</p>
+        <a href="{% url 'inventory:add' %}" class="btn btn-primary">Add Your First Item</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

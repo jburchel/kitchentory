@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit {{ shopping_list.name }} - Kitchentory{% endblock %}
+
+{% block content %}
+<div class="edit-shopping-list max-w-2xl mx-auto px-4 py-6">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center space-x-4 mb-4">
+            <a href="{% url 'shopping:list_detail' shopping_list.id %}" 
+               class="text-gray-600 hover:text-gray-900">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+            </a>
+            <h1 class="text-2xl font-bold text-gray-900">Edit Shopping List</h1>
+        </div>
+    </div>
+    
+    <!-- Form -->
+    <form method="post" class="bg-white rounded-lg shadow-sm border p-6">
+        {% csrf_token %}
+        
+        <!-- List Name -->
+        <div class="mb-6">
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                List Name <span class="text-red-500">*</span>
+            </label>
+            <input type="text" 
+                   id="name" 
+                   name="name" 
+                   value="{{ shopping_list.name }}"
+                   required
+                   class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        
+        <!-- Description -->
+        <div class="mb-6">
+            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                Description
+            </label>
+            <textarea id="description" 
+                      name="description" 
+                      rows="3"
+                      class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{{ shopping_list.description }}</textarea>
+        </div>
+        
+        <!-- Store Selection -->
+        <div class="mb-6">
+            <label for="store" class="block text-sm font-medium text-gray-700 mb-2">
+                Store
+            </label>
+            <select id="store" 
+                    name="store"
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">No specific store</option>
+                {% for store in stores %}
+                <option value="{{ store.id }}" {% if store.id == shopping_list.store.id %}selected{% endif %}>
+                    {{ store.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <!-- Budget -->
+        <div class="mb-6">
+            <label for="budget_limit" class="block text-sm font-medium text-gray-700 mb-2">
+                Budget Limit (Optional)
+            </label>
+            <div class="relative">
+                <span class="absolute left-3 top-2 text-gray-500">$</span>
+                <input type="number" 
+                       id="budget_limit" 
+                       name="budget_limit"
+                       value="{{ shopping_list.budget_limit|default:'' }}"
+                       step="0.01"
+                       min="0"
+                       placeholder="0.00"
+                       class="pl-8 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <p class="mt-1 text-sm text-gray-500">
+                Set a budget limit to track spending against this list
+            </p>
+        </div>
+        
+        <!-- Sharing Settings -->
+        <div class="mb-6">
+            <h3 class="text-sm font-medium text-gray-700 mb-3">Sharing Settings</h3>
+            <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+                {% if shared_users %}
+                <div class="mb-3">
+                    <p class="text-sm text-gray-600 mb-2">Currently shared with:</p>
+                    <div class="space-y-2">
+                        {% for share in shared_users %}
+                        <div class="flex items-center justify-between bg-white rounded-lg px-3 py-2 border">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                                    <span class="text-sm font-medium text-gray-700">
+                                        {{ share.user.first_name|first|default:share.user.username|first|upper }}
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">{{ share.user.get_full_name|default:share.user.username }}</p>
+                                    <p class="text-xs text-gray-500">{{ share.get_permission_display }}</p>
+                                </div>
+                            </div>
+                            <button type="button" 
+                                    onclick="removeShare('{{ share.id }}')"
+                                    class="text-red-600 hover:text-red-800">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div>
+                    <label for="share_email" class="block text-sm font-medium text-gray-700 mb-2">
+                        Share with someone new
+                    </label>
+                    <div class="flex space-x-2">
+                        <input type="email" 
+                               id="share_email"
+                               placeholder="Enter email address"
+                               class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select id="share_permission"
+                                class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="view">View Only</option>
+                            <option value="edit" selected>Can Edit</option>
+                        </select>
+                        <button type="button" 
+                                onclick="addShare()"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                            Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Danger Zone -->
+        <div class="mb-6 border-t pt-6">
+            <h3 class="text-sm font-medium text-red-700 mb-3">Danger Zone</h3>
+            <div class="bg-red-50 rounded-lg p-4">
+                <p class="text-sm text-red-700 mb-3">
+                    Deleting this list will remove all items and cannot be undone.
+                </p>
+                <button type="button" 
+                        onclick="deleteList()"
+                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm">
+                    Delete Shopping List
+                </button>
+            </div>
+        </div>
+        
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-3">
+            <a href="{% url 'shopping:list_detail' shopping_list.id %}" 
+               class="px-4 py-2 text-gray-700 hover:text-gray-900">
+                Cancel
+            </a>
+            <button type="submit" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Delete Shopping List?</h3>
+        <p class="text-gray-600 mb-6">
+            Are you sure you want to delete "{{ shopping_list.name }}"? This action cannot be undone and will remove all items in this list.
+        </p>
+        <div class="flex justify-end space-x-3">
+            <button type="button" 
+                    onclick="closeDeleteModal()"
+                    class="px-4 py-2 text-gray-700 hover:text-gray-900">
+                Cancel
+            </button>
+            <form method="post" action="{% url 'shopping:list_delete' shopping_list.id %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" 
+                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">
+                    Delete List
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+async function addShare() {
+    const email = document.getElementById('share_email').value;
+    const permission = document.getElementById('share_permission').value;
+    
+    if (!email) return;
+    
+    try {
+        const response = await fetch("{% url 'shopping:share_list' shopping_list.id %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                email: email,
+                permission: permission
+            })
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            const data = await response.json();
+            alert(data.error || 'Failed to share list');
+        }
+    } catch (error) {
+        console.error('Error sharing list:', error);
+        alert('Failed to share list');
+    }
+}
+
+async function removeShare(shareId) {
+    if (!confirm('Remove this user from the shared list?')) return;
+    
+    try {
+        const response = await fetch(`/shopping/share/${shareId}/remove/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        });
+        
+        if (response.ok) {
+            location.reload();
+        }
+    } catch (error) {
+        console.error('Error removing share:', error);
+    }
+}
+
+function deleteList() {
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+}
+</script>
+{% endblock %}

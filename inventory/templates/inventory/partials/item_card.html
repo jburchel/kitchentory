@@ -1,0 +1,83 @@
+<div class="card hover:shadow-md transition-shadow" 
+     id="item-{{ item.id }}"
+     hx-target="this"
+     hx-swap="outerHTML">
+    <div class="card-body">
+        <div class="flex items-center justify-between">
+            <a href="{% url 'inventory:detail' item.id %}" class="flex-1">
+                <div class="flex items-center space-x-4">
+                    {% if item.product.thumbnail_url %}
+                    <img src="{{ item.product.thumbnail_url }}" alt="{{ item.product.name }}" class="w-12 h-12 rounded-lg object-cover">
+                    {% else %}
+                    <div class="w-12 h-12 rounded-lg flex items-center justify-center" 
+                         style="background-color: {{ item.product.category.color|default:'#6B7280' }}20">
+                        <svg class="w-6 h-6" style="color: {{ item.product.category.color|default:'#6B7280' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
+                    </div>
+                    {% endif %}
+                    
+                    <div>
+                        <h3 class="font-medium text-gray-900">{{ item.product.name }}</h3>
+                        <p class="text-sm text-gray-600">
+                            {{ item.quantity }} {{ item.get_unit_display }}
+                            {% if item.location %} • {{ item.location.name }}{% endif %}
+                            {% if item.product.category %} • {{ item.product.category.name }}{% endif %}
+                        </p>
+                        
+                        {% if item.expiration_date %}
+                        <p class="text-sm mt-1">
+                            {% if item.is_expired %}
+                                <span class="text-danger font-medium">Expired {{ item.expiration_date }}</span>
+                            {% elif item.days_until_expiration <= 7 %}
+                                <span class="text-warning font-medium">Expires in {{ item.days_until_expiration }} days</span>
+                            {% else %}
+                                <span class="text-gray-500">Expires {{ item.expiration_date }}</span>
+                            {% endif %}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Actions -->
+            <div class="flex items-center space-x-2" x-data="{ open: false }">
+                <button type="button" 
+                        class="p-2 text-gray-500 hover:text-gray-700"
+                        hx-post="{% url 'inventory:consume' item.id %}"
+                        hx-confirm="Mark {{ item.product.name }} as consumed?">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="sr-only">Consume</span>
+                </button>
+                
+                <div class="relative">
+                    <button type="button" 
+                            class="p-2 text-gray-500 hover:text-gray-700"
+                            @click="open = !open">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+                        </svg>
+                        <span class="sr-only">More options</span>
+                    </button>
+                    
+                    <div x-show="open" 
+                         @click.away="open = false"
+                         x-transition
+                         class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-10">
+                        <a href="{% url 'inventory:detail' item.id %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            Edit
+                        </a>
+                        <button type="button" 
+                                class="block w-full text-left px-4 py-2 text-sm text-danger hover:bg-gray-100"
+                                hx-delete="{% url 'inventory:delete' item.id %}"
+                                hx-confirm="Delete {{ item.product.name }}?">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

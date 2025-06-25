@@ -1,0 +1,334 @@
+<!-- Barcode Scanner Modal -->
+<div x-data="barcodeScannerModal()" 
+     x-show="showModal" 
+     x-cloak
+     class="fixed inset-0 z-50 overflow-hidden"
+     x-transition:enter="ease-out duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0">
+    
+    <!-- Full screen scanner -->
+    <div class="fixed inset-0 bg-black">
+        <!-- Header -->
+        <div class="absolute top-0 left-0 right-0 z-10 bg-black bg-opacity-50 text-white p-4 safe-area-inset-top">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-medium">Scan Barcode</h2>
+                <button type="button" 
+                        @click="closeScanner()"
+                        class="p-2 hover:bg-white hover:bg-opacity-20 rounded-full">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Scanner container -->
+        <div class="relative w-full h-full">
+            <!-- Camera view -->
+            <div id="scanner-container" class="w-full h-full"></div>
+            
+            <!-- Scanning overlay -->
+            <div class="absolute inset-0 pointer-events-none">
+                <!-- Target frame -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="relative w-64 h-64 border-2 border-white rounded-lg">
+                        <!-- Corner markers -->
+                        <div class="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-green-400"></div>
+                        <div class="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-green-400"></div>
+                        <div class="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-green-400"></div>
+                        <div class="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-green-400"></div>
+                        
+                        <!-- Scanning line animation -->
+                        <div class="absolute inset-x-0 h-0.5 bg-green-400 animate-pulse" 
+                             style="top: 50%; box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);"></div>
+                    </div>
+                </div>
+                
+                <!-- Instructions -->
+                <div class="absolute bottom-20 left-0 right-0 text-center text-white px-4 safe-area-inset-bottom">
+                    <p class="text-lg font-medium mb-2">Position barcode within the frame</p>
+                    <p class="text-sm opacity-80">The barcode will be scanned automatically</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom controls -->
+        <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-4 safe-area-inset-bottom">
+            <div class="flex items-center justify-between">
+                <!-- Flashlight toggle -->
+                <button type="button" 
+                        @click="toggleFlashlight()"
+                        class="p-3 bg-white bg-opacity-20 rounded-full text-white hover:bg-opacity-30"
+                        x-show="flashlightSupported">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    </svg>
+                </button>
+                
+                <!-- Manual entry button -->
+                <button type="button" 
+                        @click="openManualEntry()"
+                        class="px-6 py-3 bg-white bg-opacity-20 rounded-lg text-white hover:bg-opacity-30">
+                    <span class="text-sm font-medium">Enter Manually</span>
+                </button>
+                
+                <!-- Camera switch -->
+                <button type="button" 
+                        @click="switchCamera()"
+                        class="p-3 bg-white bg-opacity-20 rounded-full text-white hover:bg-opacity-30"
+                        x-show="multipleCameras">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Loading overlay -->
+        <div x-show="isLoading" 
+             class="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-20">
+            <div class="text-center text-white">
+                <svg class="animate-spin w-8 h-8 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <p class="text-sm">Starting camera...</p>
+            </div>
+        </div>
+        
+        <!-- Error overlay -->
+        <div x-show="error" 
+             class="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-20">
+            <div class="text-center text-white px-6 max-w-sm">
+                <svg class="w-12 h-12 mx-auto mb-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                <h3 class="text-lg font-medium mb-2">Scanner Error</h3>
+                <p class="text-sm text-gray-300 mb-4" x-text="errorMessage"></p>
+                <div class="space-y-2">
+                    <button type="button" 
+                            @click="retryScanner()"
+                            class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Try Again
+                    </button>
+                    <button type="button" 
+                            @click="openManualEntry()"
+                            class="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                        Enter Manually
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Manual Entry Modal -->
+<div x-data="manualEntryModal()" 
+     x-show="showModal" 
+     x-cloak
+     class="fixed inset-0 z-50 overflow-y-auto"
+     x-transition:enter="ease-out duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0">
+    
+    <!-- Modal backdrop -->
+    <div class="fixed inset-0 bg-black bg-opacity-50" @click="closeModal()"></div>
+    
+    <!-- Modal content -->
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95">
+            
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Enter Barcode Manually</h3>
+            
+            <form @submit.prevent="submitBarcode()">
+                <div class="mb-4">
+                    <label for="manual-barcode" class="form-label">Barcode Number</label>
+                    <input type="text" 
+                           id="manual-barcode"
+                           x-model="barcodeInput"
+                           class="form-input"
+                           placeholder="Enter barcode number..."
+                           pattern="[0-9]{8,13}"
+                           title="Enter 8-13 digit barcode"
+                           maxlength="13"
+                           required>
+                    <p class="text-sm text-gray-600 mt-1">
+                        Enter the numbers found below the barcode (8-13 digits)
+                    </p>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button type="submit" 
+                            class="flex-1 btn btn-primary"
+                            :disabled="!barcodeInput || barcodeInput.length < 8">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        Look Up Product
+                    </button>
+                    <button type="button" 
+                            class="btn btn-outline"
+                            @click="closeModal()">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function barcodeScannerModal() {
+    return {
+        showModal: false,
+        isLoading: false,
+        error: false,
+        errorMessage: '',
+        flashlightSupported: false,
+        flashlightOn: false,
+        multipleCameras: false,
+        currentCameraIndex: 0,
+        cameras: [],
+        onSuccess: null,
+        onManualEntry: null,
+        
+        async open(onSuccess = null, onManualEntry = null) {
+            this.onSuccess = onSuccess;
+            this.onManualEntry = onManualEntry;
+            this.showModal = true;
+            this.error = false;
+            this.isLoading = true;
+            
+            try {
+                // Get available cameras
+                const cameraResult = await window.barcodeScanner.getCameras();
+                if (cameraResult.success) {
+                    this.cameras = cameraResult.cameras;
+                    this.multipleCameras = this.cameras.length > 1;
+                }
+                
+                // Start scanning
+                const result = await startBarcodeScanning('scanner-container');
+                this.isLoading = false;
+                
+                if (!result.success) {
+                    this.showError(result.error);
+                }
+            } catch (error) {
+                this.isLoading = false;
+                this.showError(error.message);
+            }
+        },
+        
+        async closeScanner() {
+            await stopBarcodeScanning();
+            this.showModal = false;
+        },
+        
+        showError(message) {
+            this.error = true;
+            this.errorMessage = message;
+        },
+        
+        async retryScanner() {
+            this.error = false;
+            this.isLoading = true;
+            
+            try {
+                const result = await startBarcodeScanning('scanner-container');
+                this.isLoading = false;
+                
+                if (!result.success) {
+                    this.showError(result.error);
+                }
+            } catch (error) {
+                this.isLoading = false;
+                this.showError(error.message);
+            }
+        },
+        
+        openManualEntry() {
+            this.closeScanner();
+            // Trigger manual entry modal
+            window.dispatchEvent(new CustomEvent('openManualEntry'));
+        },
+        
+        toggleFlashlight() {
+            // Flashlight functionality would need to be implemented
+            // This is a placeholder for future enhancement
+            console.log('Flashlight toggle - not yet implemented');
+        },
+        
+        async switchCamera() {
+            if (this.cameras.length <= 1) return;
+            
+            this.currentCameraIndex = (this.currentCameraIndex + 1) % this.cameras.length;
+            const newCamera = this.cameras[this.currentCameraIndex];
+            
+            try {
+                await window.barcodeScanner.switchCamera(newCamera.id);
+            } catch (error) {
+                console.error('Failed to switch camera:', error);
+            }
+        }
+    }
+}
+
+function manualEntryModal() {
+    return {
+        showModal: false,
+        barcodeInput: '',
+        
+        open() {
+            this.showModal = true;
+            this.barcodeInput = '';
+            // Focus on input after modal opens
+            this.$nextTick(() => {
+                document.getElementById('manual-barcode')?.focus();
+            });
+        },
+        
+        closeModal() {
+            this.showModal = false;
+        },
+        
+        submitBarcode() {
+            const validation = window.barcodeScanner.validateBarcodeFormat(this.barcodeInput);
+            
+            if (validation.valid) {
+                // Dispatch barcode scanned event
+                window.dispatchEvent(new CustomEvent('barcodeScanned', { 
+                    detail: {
+                        text: validation.barcode,
+                        format: validation.format,
+                        timestamp: new Date().toISOString(),
+                        source: 'manual'
+                    }
+                }));
+                this.closeModal();
+            } else {
+                // Show validation error
+                alert(validation.error);
+            }
+        }
+    }
+}
+
+// Listen for manual entry event
+window.addEventListener('openManualEntry', () => {
+    // Find and open manual entry modal
+    Alpine.store('manualEntry', true);
+});
+</script>
