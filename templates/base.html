@@ -36,14 +36,16 @@
     
     {% block extra_css %}{% endblock %}
     
-    <!-- Alpine.js for interactivity -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
     <!-- HTMX for dynamic updates -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     
-    <!-- HTML5 QR Code Scanner -->
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+    <!-- ZXing Barcode Scanner - More reliable alternative -->
+    <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js" 
+            onload="console.log('ZXing barcode library loaded successfully')"
+            onerror="console.error('ZXing library failed to load')"></script>
+    
+    <!-- Alpine.js for interactivity -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <!-- Heroicons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/heroicons/2.0.18/styles.min.css">

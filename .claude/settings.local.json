@@ -68,7 +68,9 @@
       "Bash(~/dev/kitchentory/scripts/latest_screenshot.sh)",
       "Bash(screenshot-to-claude)",
       "Bash(osascript:*)",
-      "Bash(open:*)"
+      "Bash(open:*)",
+      "Bash(git push:*)",
+      "Bash(cat:*)"
     ],
     "deny": []
   }

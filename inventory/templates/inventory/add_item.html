@@ -5,12 +5,13 @@
 {% block page_title %}Add Item{% endblock %}
 
 {% block content %}
+<!-- Include camera permission modal -->
+{% include 'inventory/components/camera_permission_modal.html' %}
+
+<!-- Include barcode scanner modal -->
+{% include 'inventory/components/barcode_scanner_modal.html' %}
+
 <div class="px-4 py-6 sm:px-6 lg:px-8 max-w-2xl mx-auto" x-data="addItemForm()">
-    <!-- Include camera permission modal -->
-    {% include 'inventory/components/camera_permission_modal.html' %}
-    
-    <!-- Include barcode scanner modal -->
-    {% include 'inventory/components/barcode_scanner_modal.html' %}
     
     <form method="post" class="space-y-6">
         {% csrf_token %}
@@ -198,11 +199,337 @@ function addItemForm() {
             document.getElementById('id_days_until_expiration').value = days;
         },
         
-        requestCameraAndScan() {
-            // Get modal instances
-            const cameraModal = document.querySelector('[x-data*="cameraPermissionModal"]').__x.$data;
-            const scannerModal = document.querySelector('[x-data*="barcodeScannerModal"]').__x.$data;
+        async requestCameraAndScan() {
+            console.log('Scan barcode button clicked');
             
+            // Show options to user: Camera or Manual Entry
+            const useCamera = confirm('Choose scanning method:\n\nOK = Use Camera (basic camera view)\nCancel = Enter barcode manually');
+            
+            if (!useCamera) {
+                this.openManualBarcodeEntry();
+                return;
+            }
+            
+            try {
+                console.log('Starting basic camera view...');
+                await this.startBasicCamera();
+            } catch (error) {
+                console.error('Camera failed:', error);
+                alert('Camera is not available. Using manual entry instead.');
+                this.openManualBarcodeEntry();
+            }
+        },
+        
+        async startBasicCamera() {
+            // Check if ZXing library is available
+            if (typeof ZXing === 'undefined') {
+                throw new Error('ZXing barcode library not loaded');
+            }
+            
+            // Create scanning interface
+            const scannerContainer = document.createElement('div');
+            scannerContainer.id = 'zxing-scanner-container';
+            scannerContainer.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: black;
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+            `;
+            
+            // Add header
+            const header = document.createElement('div');
+            header.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 10;
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 1rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            `;
+            header.innerHTML = `
+                <h2 style="margin: 0; font-size: 1.2rem;">Scanning for barcodes...</h2>
+                <button id="close-zxing-scanner" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">×</button>
+            `;
+            
+            // Add video element
+            const video = document.createElement('video');
+            video.id = 'zxing-video';
+            video.style.cssText = `
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            `;
+            video.autoplay = true;
+            video.playsInline = true;
+            
+            // Add scanning frame overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 300px;
+                height: 200px;
+                border: 2px solid #00ff00;
+                border-radius: 10px;
+                pointer-events: none;
+            `;
+            overlay.innerHTML = `
+                <div style="position: absolute; top: -30px; left: 0; right: 0; text-align: center; color: white; font-size: 14px;">
+                    Position barcode here
+                </div>
+            `;
+            
+            // Add manual entry button
+            const footer = document.createElement('div');
+            footer.style.cssText = `
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 10;
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 1rem;
+                text-align: center;
+            `;
+            footer.innerHTML = `
+                <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem;">Automatic scanning enabled. Or:</p>
+                <button id="manual-entry-zxing" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer;">Enter Barcode Manually</button>
+            `;
+            
+            scannerContainer.appendChild(header);
+            scannerContainer.appendChild(video);
+            scannerContainer.appendChild(overlay);
+            scannerContainer.appendChild(footer);
+            document.body.appendChild(scannerContainer);
+            
+            // Set up event handlers
+            document.getElementById('close-zxing-scanner').onclick = () => {
+                this.closeZXingScanner();
+            };
+            
+            document.getElementById('manual-entry-zxing').onclick = () => {
+                this.closeZXingScanner();
+                this.openManualBarcodeEntry();
+            };
+            
+            // Start camera and scanning
+            try {
+                console.log('Starting ZXing barcode scanner...');
+                
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                });
+                
+                video.srcObject = stream;
+                this.currentStream = stream;
+                
+                // Initialize ZXing scanner
+                const codeReader = new ZXing.BrowserMultiFormatReader();
+                
+                // Start scanning
+                codeReader.decodeFromVideoDevice(undefined, video, (result, err) => {
+                    if (result) {
+                        console.log('✅ Barcode detected:', result.getText());
+                        this.closeZXingScanner();
+                        this.handleBarcodeScanned({
+                            text: result.getText(),
+                            format: result.getBarcodeFormat(),
+                            timestamp: new Date().toISOString(),
+                            source: 'camera'
+                        });
+                    }
+                    if (err && !(err instanceof ZXing.NotFoundException)) {
+                        console.warn('Scanning error:', err);
+                    }
+                });
+                
+                this.codeReader = codeReader;
+                console.log('✅ ZXing scanner started successfully');
+                
+            } catch (error) {
+                console.error('Failed to start ZXing scanner:', error);
+                this.closeZXingScanner();
+                throw error;
+            }
+        },
+        
+        closeZXingScanner() {
+            // Stop scanner
+            if (this.codeReader) {
+                this.codeReader.reset();
+                this.codeReader = null;
+            }
+            
+            // Stop camera stream
+            if (this.currentStream) {
+                this.currentStream.getTracks().forEach(track => track.stop());
+                this.currentStream = null;
+            }
+            
+            // Remove the container
+            const container = document.getElementById('zxing-scanner-container');
+            if (container) {
+                container.remove();
+            }
+        },
+        
+        closeBasicCamera() {
+            // Stop camera stream
+            if (this.currentStream) {
+                this.currentStream.getTracks().forEach(track => track.stop());
+                this.currentStream = null;
+            }
+            
+            // Remove the container
+            const container = document.getElementById('basic-camera-container');
+            if (container) {
+                container.remove();
+            }
+        },
+        
+        async startDirectScanning() {
+            // Create a temporary scanner container
+            const scannerContainer = document.createElement('div');
+            scannerContainer.id = 'temp-scanner-container';
+            scannerContainer.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: black;
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+            `;
+            
+            // Add header with close button
+            const header = document.createElement('div');
+            header.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 10;
+                background: rgba(0,0,0,0.7);
+                color: white;
+                padding: 1rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            `;
+            header.innerHTML = `
+                <h2 style="margin: 0; font-size: 1.2rem;">Scan Barcode</h2>
+                <button id="close-scanner" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">×</button>
+            `;
+            
+            // Add manual entry button
+            const footer = document.createElement('div');
+            footer.style.cssText = `
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 10;
+                background: rgba(0,0,0,0.7);
+                color: white;
+                padding: 1rem;
+                text-align: center;
+            `;
+            footer.innerHTML = `
+                <button id="manual-entry" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer;">Enter Manually</button>
+            `;
+            
+            // Add scanning area
+            const scanArea = document.createElement('div');
+            scanArea.id = 'scanner-area';
+            scanArea.style.cssText = `
+                flex: 1;
+                position: relative;
+            `;
+            
+            scannerContainer.appendChild(header);
+            scannerContainer.appendChild(scanArea);
+            scannerContainer.appendChild(footer);
+            document.body.appendChild(scannerContainer);
+            
+            // Set up event handlers
+            document.getElementById('close-scanner').onclick = () => {
+                this.closeDirectScanner();
+            };
+            
+            document.getElementById('manual-entry').onclick = () => {
+                this.closeDirectScanner();
+                this.openManualBarcodeEntry();
+            };
+            
+            // Wait for scanner to be ready and start scanning
+            try {
+                // Wait for scanner instance to be ready
+                let attempts = 0;
+                while (!window.barcodeScanner || !window.barcodeScanner.startScanning || attempts > 50) {
+                    if (attempts > 50) {
+                        throw new Error('Scanner failed to initialize after 5 seconds');
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                console.log('Scanner ready, starting scan...');
+                
+                const result = await window.barcodeScanner.startScanning(
+                    'scanner-area',
+                    (barcodeData) => {
+                        console.log('Barcode scanned:', barcodeData);
+                        this.closeDirectScanner();
+                        this.handleBarcodeScanned(barcodeData);
+                    },
+                    (error) => {
+                        console.error('Scanning error:', error);
+                    }
+                );
+                
+                if (!result.success) {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                console.error('Failed to start scanner:', error);
+                this.closeDirectScanner();
+                throw error;
+            }
+        },
+        
+        closeDirectScanner() {
+            // Stop the scanner
+            if (window.barcodeScanner) {
+                window.barcodeScanner.stopScanning();
+            }
+            
+            // Remove the container
+            const container = document.getElementById('temp-scanner-container');
+            if (container) {
+                container.remove();
+            }
+        },
+        
+        proceedWithModals(cameraModal, scannerModal) {
             // Open camera permission modal first
             cameraModal.open(
                 // On permission granted
@@ -221,8 +548,22 @@ function addItemForm() {
         },
         
         openManualBarcodeEntry() {
-            const manualModal = document.querySelector('[x-data*="manualEntryModal"]').__x.$data;
-            manualModal.open();
+            console.log('Opening manual barcode entry');
+            const manualModalElement = document.querySelector('[x-data*="manualEntryModal"]');
+            if (manualModalElement && manualModalElement.__x) {
+                manualModalElement.__x.$data.open();
+            } else {
+                // Fallback: Simple prompt for barcode
+                const barcode = prompt('Enter barcode number (8-13 digits):');
+                if (barcode && barcode.length >= 8) {
+                    this.handleBarcodeScanned({
+                        text: barcode,
+                        format: 'manual',
+                        timestamp: new Date().toISOString(),
+                        source: 'manual'
+                    });
+                }
+            }
         },
         
         async handleBarcodeScanned(barcodeData) {
@@ -231,22 +572,17 @@ function addItemForm() {
             this.isProcessingBarcode = true;
             
             try {
-                // Look up product by barcode via API
-                const response = await fetch(`/api/inventory/products/by_barcode/?barcode=${encodeURIComponent(barcodeData.text)}`, {
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    }
-                });
+                // Try multiple barcode lookup services for better recognition
+                const product = await this.lookupProductMultipleSources(barcodeData.text);
                 
-                if (response.ok) {
-                    const product = await response.json();
-                    this.fillProductFromApi(product);
-                    this.showNotification('Product found! Details have been filled in.', 'success');
-                } else if (response.status === 404) {
-                    // Product not found, but barcode is valid
-                    this.showManualProductOption(barcodeData.text);
+                if (product) {
+                    // Auto-detect category and location
+                    const smartData = this.detectCategoryAndLocation(product);
+                    this.fillProductFromApi({...product, ...smartData});
+                    this.showNotification(`Product found: ${product.name}! Category and location auto-detected.`, 'success');
                 } else {
-                    throw new Error('Failed to lookup product');
+                    // No product found in any database
+                    this.showManualProductOption(barcodeData.text);
                 }
             } catch (error) {
                 console.error('Error looking up product:', error);
@@ -256,20 +592,252 @@ function addItemForm() {
             }
         },
         
+        async lookupProductMultipleSources(barcode) {
+            console.log('Looking up barcode in multiple sources:', barcode);
+            
+            // Source 1: Our internal API
+            try {
+                const response = await fetch(`/api/inventory/products/by_barcode/?barcode=${encodeURIComponent(barcode)}`, {
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                });
+                
+                if (response.ok) {
+                    const product = await response.json();
+                    console.log('✅ Found in internal database:', product.name);
+                    return product;
+                }
+            } catch (error) {
+                console.log('Internal API failed:', error);
+            }
+            
+            // Source 2: Open Food Facts API
+            try {
+                console.log('Trying Open Food Facts...');
+                const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+                const data = await response.json();
+                
+                if (data.status === 1 && data.product) {
+                    const product = {
+                        name: data.product.product_name || data.product.product_name_en || 'Unknown Product',
+                        brand: data.product.brands?.split(',')[0]?.trim() || '',
+                        category: data.product.categories?.split(',')[0]?.trim() || '',
+                        image_url: data.product.image_url || '',
+                        barcode: barcode
+                    };
+                    console.log('✅ Found in Open Food Facts:', product.name);
+                    return product;
+                }
+            } catch (error) {
+                console.log('Open Food Facts failed:', error);
+            }
+            
+            // Source 3: UPC Database
+            try {
+                console.log('Trying UPC Database...');
+                const response = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`);
+                const data = await response.json();
+                
+                if (data.code === 'OK' && data.items && data.items.length > 0) {
+                    const item = data.items[0];
+                    const product = {
+                        name: item.title || 'Unknown Product',
+                        brand: item.brand || '',
+                        category: item.category || '',
+                        image_url: item.images?.[0] || '',
+                        barcode: barcode
+                    };
+                    console.log('✅ Found in UPC Database:', product.name);
+                    return product;
+                }
+            } catch (error) {
+                console.log('UPC Database failed:', error);
+            }
+            
+            // Source 4: Barcode Lookup API
+            try {
+                console.log('Trying Barcode Lookup...');
+                const response = await fetch(`https://api.barcodelookup.com/v3/products?barcode=${barcode}&formatted=y&key=YOUR_API_KEY`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.products && data.products.length > 0) {
+                        const item = data.products[0];
+                        const product = {
+                            name: item.title || item.product_name || 'Unknown Product',
+                            brand: item.brand || item.manufacturer || '',
+                            category: item.category || '',
+                            image_url: item.images?.[0] || '',
+                            barcode: barcode
+                        };
+                        console.log('✅ Found in Barcode Lookup:', product.name);
+                        return product;
+                    }
+                }
+            } catch (error) {
+                console.log('Barcode Lookup failed:', error);
+            }
+            
+            console.log('❌ Product not found in any database');
+            return null;
+        },
+        
+        detectCategoryAndLocation(product) {
+            const name = (product.name || '').toLowerCase();
+            const category = (product.category || '').toLowerCase();
+            const brand = (product.brand || '').toLowerCase();
+            const searchText = `${name} ${category} ${brand}`;
+            
+            console.log('Auto-detecting category and location for:', searchText);
+            
+            // Dairy products
+            if (searchText.match(/milk|cheese|yogurt|yoghurt|butter|cream|dairy|cottage cheese|sour cream|ice cream/)) {
+                return { 
+                    category: 'Dairy', 
+                    location: 'Fridge',
+                    days_until_expiration: 7
+                };
+            }
+            
+            // Meat & Poultry
+            if (searchText.match(/chicken|beef|pork|turkey|ham|bacon|sausage|ground beef|steak|meat|fish|salmon|tuna/)) {
+                return { 
+                    category: 'Meat & Poultry', 
+                    location: 'Fridge',
+                    days_until_expiration: 3
+                };
+            }
+            
+            // Fruits & Vegetables
+            if (searchText.match(/apple|banana|orange|lettuce|tomato|potato|onion|carrot|broccoli|spinach|fruit|vegetable|produce/)) {
+                return { 
+                    category: 'Produce', 
+                    location: 'Fridge',
+                    days_until_expiration: 5
+                };
+            }
+            
+            // Frozen items
+            if (searchText.match(/frozen|ice cream|freezer|popsicle/)) {
+                return { 
+                    category: 'Frozen', 
+                    location: 'Freezer',
+                    days_until_expiration: 90
+                };
+            }
+            
+            // Bread & Bakery
+            if (searchText.match(/bread|bagel|muffin|croissant|bakery|baked|loaf/)) {
+                return { 
+                    category: 'Bakery', 
+                    location: 'Pantry',
+                    days_until_expiration: 5
+                };
+            }
+            
+            // Beverages
+            if (searchText.match(/juice|soda|water|beer|wine|coffee|tea|beverage|drink/)) {
+                return { 
+                    category: 'Beverages', 
+                    location: 'Pantry',
+                    days_until_expiration: 30
+                };
+            }
+            
+            // Canned goods
+            if (searchText.match(/can|canned|soup|sauce|beans|corn|peas/)) {
+                return { 
+                    category: 'Pantry', 
+                    location: 'Pantry',
+                    days_until_expiration: 365
+                };
+            }
+            
+            // Condiments & Sauces
+            if (searchText.match(/ketchup|mustard|mayo|mayonnaise|sauce|dressing|condiment|vinegar|oil/)) {
+                return { 
+                    category: 'Condiments', 
+                    location: 'Pantry',
+                    days_until_expiration: 180
+                };
+            }
+            
+            // Snacks
+            if (searchText.match(/chips|crackers|cookies|candy|chocolate|snack|nuts|pretzels/)) {
+                return { 
+                    category: 'Snacks', 
+                    location: 'Pantry',
+                    days_until_expiration: 60
+                };
+            }
+            
+            // Default fallback
+            return { 
+                category: 'Other', 
+                location: 'Pantry',
+                days_until_expiration: 30
+            };
+        },
+        
         fillProductFromApi(product) {
             // Fill form fields with product data
             const nameField = document.getElementById('id_name');
             const brandField = document.getElementById('id_brand');
             const categoryField = document.getElementById('id_category');
+            const locationField = document.getElementById('id_location');
+            const expirationField = document.getElementById('id_days_until_expiration');
             
-            if (nameField && product.name) nameField.value = product.name;
-            if (brandField && product.brand) brandField.value = product.brand;
-            if (categoryField && product.category) categoryField.value = product.category;
+            if (nameField && product.name) {
+                nameField.value = product.name;
+                console.log('✅ Auto-filled name:', product.name);
+            }
+            
+            if (brandField && product.brand) {
+                brandField.value = product.brand;
+                console.log('✅ Auto-filled brand:', product.brand);
+            }
+            
+            if (categoryField && product.category) {
+                // Try to select the category option
+                for (let option of categoryField.options) {
+                    if (option.text.toLowerCase().includes(product.category.toLowerCase()) || 
+                        option.value.toLowerCase().includes(product.category.toLowerCase())) {
+                        categoryField.value = option.value;
+                        console.log('✅ Auto-selected category:', option.text);
+                        break;
+                    }
+                }
+            }
+            
+            if (locationField && product.location) {
+                // Try to select the location option
+                for (let option of locationField.options) {
+                    if (option.text.toLowerCase().includes(product.location.toLowerCase()) || 
+                        option.value.toLowerCase().includes(product.location.toLowerCase())) {
+                        locationField.value = option.value;
+                        console.log('✅ Auto-selected location:', option.text);
+                        break;
+                    }
+                }
+            }
+            
+            if (expirationField && product.days_until_expiration) {
+                expirationField.value = product.days_until_expiration;
+                console.log('✅ Auto-filled expiration:', product.days_until_expiration, 'days');
+            }
             
             // Trigger change events for form validation
-            [nameField, brandField, categoryField].forEach(field => {
+            [nameField, brandField, categoryField, locationField, expirationField].forEach(field => {
                 if (field) field.dispatchEvent(new Event('change', { bubbles: true }));
             });
+            
+            // Show what was auto-detected
+            if (product.location && product.category) {
+                this.showNotification(
+                    `Smart detection: ${product.category} → ${product.location} (${product.days_until_expiration} days)`, 
+                    'info'
+                );
+            }
         },
         
         clearBarcode() {
