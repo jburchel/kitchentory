@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Kitchentory{% endblock %}
+
+{% block content %}
+<div class="recipe-quick-create-page max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto px-4 py-6">
+    <!-- Header -->
+    <div class="flex items-center mb-6">
+        <a href="{% url 'recipes:list' %}" 
+           class="mr-4 p-2 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-100">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+        </a>
+        <h1 class="text-3xl font-bold text-gray-900">{{ title }}</h1>
+    </div>
+
+    <!-- Quick Create Form -->
+    <div class="bg-white rounded-lg shadow-sm border">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900 mb-2">Quick Recipe Creation</h2>
+            <p class="text-gray-600">
+                Create a recipe quickly by entering the basic information and ingredients/instructions as text. 
+                We'll parse and organize everything for you.
+            </p>
+        </div>
+
+        <form method="post" class="p-6 space-y-6">
+            {% csrf_token %}
+            
+            <!-- Recipe Basic Info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Title -->
+                <div class="md:col-span-2">
+                    <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Recipe Title *
+                    </label>
+                    <input type="text" 
+                           name="{{ form.title.name }}" 
+                           id="{{ form.title.id_for_label }}"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="Enter your recipe title..."
+                           value="{{ form.title.value|default:'' }}"
+                           required>
+                    {% if form.title.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {{ form.title.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Description -->
+                <div class="md:col-span-2">
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Description
+                    </label>
+                    <textarea name="{{ form.description.name }}" 
+                              id="{{ form.description.id_for_label }}"
+                              rows="3"
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                              placeholder="Brief description of your recipe...">{{ form.description.value|default:'' }}</textarea>
+                    {% if form.description.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {{ form.description.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Category -->
+                <div>
+                    <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Category
+                    </label>
+                    <select name="{{ form.category.name }}" 
+                            id="{{ form.category.id_for_label }}"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white">
+                        <option value="">Select a category...</option>
+                        {% for value, label in form.category.field.choices %}
+                            {% if value %}
+                                <option value="{{ value }}" {% if form.category.value == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% if form.category.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {{ form.category.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Servings -->
+                <div>
+                    <label for="{{ form.servings.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Servings
+                    </label>
+                    <input type="number" 
+                           name="{{ form.servings.name }}" 
+                           id="{{ form.servings.id_for_label }}"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                           value="{{ form.servings.value|default:'4' }}"
+                           min="1"
+                           required>
+                    {% if form.servings.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {{ form.servings.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Prep Time -->
+                <div>
+                    <label for="{{ form.prep_time.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Prep Time (minutes)
+                    </label>
+                    <input type="number" 
+                           name="{{ form.prep_time.name }}" 
+                           id="{{ form.prep_time.id_for_label }}"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="15"
+                           value="{{ form.prep_time.value|default:'' }}"
+                           min="0">
+                    {% if form.prep_time.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {{ form.prep_time.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Cook Time -->
+                <div>
+                    <label for="{{ form.cook_time.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Cook Time (minutes)
+                    </label>
+                    <input type="number" 
+                           name="{{ form.cook_time.name }}" 
+                           id="{{ form.cook_time.id_for_label }}"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                           placeholder="30"
+                           value="{{ form.cook_time.value|default:'' }}"
+                           min="0">
+                    {% if form.cook_time.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {{ form.cook_time.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Difficulty -->
+                <div>
+                    <label for="{{ form.difficulty.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Difficulty
+                    </label>
+                    <select name="{{ form.difficulty.name }}" 
+                            id="{{ form.difficulty.id_for_label }}"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white">
+                        {% for value, label in form.difficulty.field.choices %}
+                            <option value="{{ value }}" {% if form.difficulty.value == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.difficulty.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {{ form.difficulty.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Ingredients -->
+            <div>
+                <label for="{{ form.ingredients_text.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Ingredients *
+                </label>
+                <textarea name="{{ form.ingredients_text.name }}" 
+                          id="{{ form.ingredients_text.id_for_label }}"
+                          rows="8"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono text-sm"
+                          placeholder="Enter ingredients, one per line:
+2 cups all-purpose flour
+1 tsp salt
+3 large eggs
+1/2 cup milk
+2 tbsp olive oil"
+                          required>{{ form.ingredients_text.value|default:'' }}</textarea>
+                {% if form.ingredients_text.errors %}
+                    <div class="mt-1 text-sm text-red-600">
+                        {{ form.ingredients_text.errors.0 }}
+                    </div>
+                {% endif %}
+                <p class="mt-1 text-xs text-gray-500">
+                    {{ form.ingredients_text.help_text }}
+                </p>
+            </div>
+
+            <!-- Instructions -->
+            <div>
+                <label for="{{ form.instructions_text.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Instructions *
+                </label>
+                <textarea name="{{ form.instructions_text.name }}" 
+                          id="{{ form.instructions_text.id_for_label }}"
+                          rows="10"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono text-sm"
+                          placeholder="Enter cooking steps, one per line:
+1. Preheat oven to 350°F
+2. Mix flour and salt in a large bowl
+3. In another bowl, beat eggs and add milk
+4. Combine wet and dry ingredients
+5. Bake for 25-30 minutes until golden"
+                          required>{{ form.instructions_text.value|default:'' }}</textarea>
+                {% if form.instructions_text.errors %}
+                    <div class="mt-1 text-sm text-red-600">
+                        {{ form.instructions_text.errors.0 }}
+                    </div>
+                {% endif %}
+                <p class="mt-1 text-xs text-gray-500">
+                    {{ form.instructions_text.help_text }}
+                </p>
+            </div>
+
+            <!-- Make Public Checkbox -->
+            <div class="flex items-center">
+                <input type="checkbox" 
+                       name="{{ form.is_public.name }}" 
+                       id="{{ form.is_public.id_for_label }}"
+                       class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                       {% if form.is_public.value %}checked{% endif %}>
+                <label for="{{ form.is_public.id_for_label }}" class="ml-2 text-sm text-gray-700">
+                    Make this recipe public (others can see and search for it)
+                </label>
+            </div>
+            {% if form.is_public.errors %}
+                <div class="text-sm text-red-600">
+                    {{ form.is_public.errors.0 }}
+                </div>
+            {% endif %}
+
+            <!-- Submit Buttons -->
+            <div class="flex gap-3 pt-4 border-t border-gray-200">
+                <button type="submit" 
+                        class="flex-1 bg-primary-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Create Recipe
+                </button>
+                <a href="{% url 'recipes:list' %}" 
+                   class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Help Section -->
+    <div class="mt-8 bg-blue-50 rounded-lg p-6">
+        <h3 class="text-sm font-semibold text-gray-900 mb-3">💡 Tips for Quick Recipe Creation</h3>
+        <div class="space-y-2 text-sm text-gray-700">
+            <div class="flex items-start">
+                <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-3 mt-2 flex-shrink-0"></span>
+                <span><strong>Ingredients:</strong> Include quantities and units (2 cups flour, 1 tsp salt, 3 large eggs)</span>
+            </div>
+            <div class="flex items-start">
+                <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-3 mt-2 flex-shrink-0"></span>
+                <span><strong>Instructions:</strong> Number your steps or just list them - we'll organize them automatically</span>
+            </div>
+            <div class="flex items-start">
+                <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-3 mt-2 flex-shrink-0"></span>
+                <span><strong>Pro tip:</strong> You can always edit and enhance your recipe after creation</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alternative Options -->
+    <div class="mt-6 text-center">
+        <p class="text-gray-600 mb-4">Need more control over your recipe?</p>
+        <div class="flex gap-3 justify-center">
+            <a href="{% url 'recipes:create' %}" 
+               class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                Full Recipe Form
+            </a>
+            <a href="{% url 'recipes:import' %}" 
+               class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                Import from URL
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-resize textareas
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    });
+    
+    // Form validation feedback
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<svg class="animate-spin w-5 h-5 inline mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Creating Recipe...';
+    });
+});
+</script>
+{% endblock %}

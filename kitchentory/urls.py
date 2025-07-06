@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import TemplateView
+from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,12 +31,15 @@ urlpatterns = [
     path('inventory/', include('inventory.urls')),
     path('recipes/', include('recipes.urls')),
     path('shopping/', include('shopping.urls')),
+    path('integrations/', include('integrations.urls')),
     
     # API URLs
+    path('api/auth/', include('accounts.api_urls')),
     path('api/inventory/', include('inventory.api_urls')),
+    path('api/integrations/', include('integrations.api_urls')),
     
     # Home page
-    path('', TemplateView.as_view(template_name='home.html'), name='home'),
+    path('', views.dashboard, name='home'),
 ]
 
 # Serve media files in development

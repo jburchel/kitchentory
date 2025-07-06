@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Kitchentory Shopping Assistant</title>
+  <link rel="stylesheet" href="../styles/popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <div class="header">
+      <h1>Kitchentory</h1>
+      <span class="subtitle">Shopping Assistant</span>
+    </div>
+
+    <div id="login-section" class="section hidden">
+      <h2>Connect Your Account</h2>
+      <input type="text" id="server-url" placeholder="Kitchentory URL" value="http://localhost:8000">
+      <input type="email" id="email" placeholder="Email">
+      <input type="password" id="password" placeholder="Password">
+      <button id="login-btn" class="primary-btn">Connect</button>
+      <div id="login-error" class="error-message hidden"></div>
+    </div>
+
+    <div id="connected-section" class="section hidden">
+      <div class="status-badge connected">
+        <span class="status-dot"></span>
+        Connected to Kitchentory
+      </div>
+      
+      <div class="user-info">
+        <span id="user-email"></span>
+        <button id="logout-btn" class="link-btn">Disconnect</button>
+      </div>
+
+      <div class="capture-section">
+        <h3>Capture Mode</h3>
+        <label class="toggle">
+          <input type="checkbox" id="auto-capture">
+          <span class="toggle-slider"></span>
+          <span class="toggle-label">Auto-capture items</span>
+        </label>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-value" id="items-captured">0</span>
+          <span class="stat-label">Items captured</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="items-synced">0</span>
+          <span class="stat-label">Items synced</span>
+        </div>
+      </div>
+
+      <button id="sync-now-btn" class="secondary-btn">Sync Now</button>
+    </div>
+
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <script src="api-service.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

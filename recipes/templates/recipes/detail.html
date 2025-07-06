@@ -233,7 +233,7 @@
             <!-- Recipe Image -->
             <div class="recipe-image-section mb-6">
                 <div class="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden">
-                    <img src="{{ recipe.get_image_url:'large' }}" 
+                    <img src="{{ recipe.image_url|default:'/static/images/recipe-placeholder.jpg' }}" 
                          alt="{{ recipe.title }}"
                          class="w-full h-full object-cover">
                 </div>
@@ -475,8 +475,8 @@ function addIngredientToShoppingList(productId) {
 }
 
 function startCookingMode(recipeId) {
-    // Implement cooking mode
-    console.log('Start cooking mode for recipe:', recipeId);
+    // Redirect to cooking mode
+    window.location.href = "{% url 'recipes:cooking' recipe.slug %}";
 }
 
 // Print styles

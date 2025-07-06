@@ -155,3 +155,7 @@ python manage.py createsuperuser
 ## Development Best Practices
 
 - When you complete items from the @Docs/TaskList.md make sure to check them off the list
+
+## Database Development Notes
+
+- Make sure when we are in local development using Sqlite3 that we are paying close attention to making sure our database is going to be compatible with our production Supabase postgreSQL database.

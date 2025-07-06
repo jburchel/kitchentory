@@ -1,0 +1,539 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Email Receipt Setup - Kitchentory{% endblock %}
+
+{% block extra_css %}
+<style>
+.email-config-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.config-section {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 4px 0;
+}
+
+.section-description {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0;
+}
+
+.section-content {
+    padding: 24px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.form-checkbox {
+    margin-right: 8px;
+}
+
+.form-help {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.email-address-display {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 12px;
+    font-family: monospace;
+    font-size: 14px;
+    color: #374151;
+}
+
+.copy-button {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+.copy-button:hover {
+    background: #059669;
+}
+
+.step-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.step-item {
+    display: flex;
+    margin-bottom: 16px;
+    align-items: flex-start;
+}
+
+.step-number {
+    width: 24px;
+    height: 24px;
+    background: #10b981;
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-title {
+    font-weight: 500;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.step-description {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.store-mapping-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: center;
+}
+
+.webhook-url {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 12px;
+    font-family: monospace;
+    font-size: 13px;
+    color: #374151;
+    word-break: break-all;
+}
+
+.alert {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.alert-info {
+    background: #dbeafe;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+}
+
+.alert-warning {
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    color: #92400e;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #10b981;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #059669;
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+@media (max-width: 768px) {
+    .store-mapping-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="email-config-container">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Email Receipt Setup</h1>
+        <p class="text-gray-600">Configure automatic receipt parsing from your grocery receipts</p>
+    </div>
+
+    <!-- Quick Setup Instructions -->
+    <div class="config-section">
+        <div class="section-header">
+            <h2 class="section-title">📧 Quick Setup</h2>
+            <p class="section-description">Forward receipts to your dedicated email address</p>
+        </div>
+        <div class="section-content">
+            <div class="form-group">
+                <label class="form-label">Your Receipt Email Address</label>
+                <div class="flex items-center">
+                    <div class="email-address-display flex-1" id="receipt-email">
+                        {{ config.email_address }}
+                    </div>
+                    <button type="button" class="copy-button" onclick="copyEmail()">
+                        Copy
+                    </button>
+                </div>
+                <div class="form-help">
+                    Forward receipts from grocery stores to this email address for automatic processing.
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <strong>How it works:</strong> Simply forward your grocery receipt emails to the address above. 
+                We'll automatically extract items and add them to your inventory after review.
+            </div>
+        </div>
+    </div>
+
+    <!-- Supported Stores -->
+    <div class="config-section">
+        <div class="section-header">
+            <h2 class="section-title">🏪 Supported Stores</h2>
+            <p class="section-description">Stores we can automatically parse receipts from</p>
+        </div>
+        <div class="section-content">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="flex items-center p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span class="font-medium">Instacart</span>
+                </div>
+                <div class="flex items-center p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span class="font-medium">Amazon Fresh</span>
+                </div>
+                <div class="flex items-center p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span class="font-medium">Walmart Grocery</span>
+                </div>
+                <div class="flex items-center p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span class="font-medium">Target</span>
+                </div>
+                <div class="flex items-center p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span class="font-medium">Kroger</span>
+                </div>
+                <div class="flex items-center p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span class="font-medium">Safeway</span>
+                </div>
+            </div>
+            
+            <div class="alert alert-warning mt-4">
+                <strong>Note:</strong> Store layouts change frequently. If parsing accuracy decreases, 
+                we'll update our parsers and notify you via email.
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration Form -->
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Processing Settings -->
+        <div class="config-section">
+            <div class="section-header">
+                <h2 class="section-title">⚙️ Processing Settings</h2>
+                <p class="section-description">Configure how receipts are processed</p>
+            </div>
+            <div class="section-content">
+                <div class="form-group">
+                    <label class="flex items-center">
+                        <input type="checkbox" 
+                               name="auto_approve" 
+                               class="form-checkbox" 
+                               {% if config.auto_approve %}checked{% endif %}>
+                        <span class="form-label mb-0">Auto-approve high confidence items</span>
+                    </label>
+                    <div class="form-help">
+                        Automatically add items to inventory when parsing confidence is above threshold (recommended for trusted stores).
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Confidence Threshold</label>
+                    <input type="range" 
+                           name="confidence_threshold" 
+                           min="0.5" 
+                           max="1.0" 
+                           step="0.05" 
+                           value="{{ config.confidence_threshold }}"
+                           class="w-full"
+                           oninput="updateThresholdDisplay(this.value)">
+                    <div class="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>50% (Lenient)</span>
+                        <span id="threshold-display">{{ config.confidence_threshold|floatformat:0 }}%</span>
+                        <span>100% (Strict)</span>
+                    </div>
+                    <div class="form-help">
+                        Items above this confidence level will be auto-approved (if enabled).
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Settings -->
+        <div class="config-section">
+            <div class="section-header">
+                <h2 class="section-title">🔧 Advanced Settings</h2>
+                <p class="section-description">Custom store mappings and webhook configuration</p>
+            </div>
+            <div class="section-content">
+                <!-- Webhook URL -->
+                <div class="form-group">
+                    <label class="form-label">Webhook URL (for email services)</label>
+                    <div class="webhook-url">
+                        {{ request.build_absolute_uri }}{% url 'integrations:email_webhook' %}
+                    </div>
+                    <div class="form-help">
+                        Use this URL when setting up email forwarding with services like SendGrid or Mailgun.
+                    </div>
+                </div>
+
+                <!-- Store Email Mappings -->
+                <div class="form-group">
+                    <label class="form-label">Store Email Mappings</label>
+                    <div class="form-help mb-3">
+                        Map email senders to store names for better parsing accuracy.
+                    </div>
+                    
+                    <div id="store-mappings">
+                        {% for email_pattern, store_name in config.store_mappings.items %}
+                        <div class="store-mapping-grid mb-3">
+                            <input type="text" 
+                                   name="store_{{ email_pattern }}" 
+                                   value="{{ store_name }}" 
+                                   placeholder="Store name"
+                                   class="form-input">
+                            <input type="text" 
+                                   value="{{ email_pattern }}" 
+                                   placeholder="Email pattern (e.g., receipts@store.com)"
+                                   class="form-input" 
+                                   readonly>
+                        </div>
+                        {% endfor %}
+                        
+                        <!-- Default mappings -->
+                        <div class="store-mapping-grid mb-3">
+                            <input type="text" 
+                                   name="store_receipts@instacart.com" 
+                                   value="Instacart" 
+                                   placeholder="Store name"
+                                   class="form-input">
+                            <input type="text" 
+                                   value="receipts@instacart.com" 
+                                   class="form-input" 
+                                   readonly>
+                        </div>
+                        <div class="store-mapping-grid mb-3">
+                            <input type="text" 
+                                   name="store_auto-confirm@amazon.com" 
+                                   value="Amazon Fresh" 
+                                   placeholder="Store name"
+                                   class="form-input">
+                            <input type="text" 
+                                   value="auto-confirm@amazon.com" 
+                                   class="form-input" 
+                                   readonly>
+                        </div>
+                        <div class="store-mapping-grid mb-3">
+                            <input type="text" 
+                                   name="store_no-reply@walmart.com" 
+                                   value="Walmart" 
+                                   placeholder="Store name"
+                                   class="form-input">
+                            <input type="text" 
+                                   value="no-reply@walmart.com" 
+                                   class="form-input" 
+                                   readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-between">
+            <a href="{% url 'integrations:dashboard' %}" class="btn btn-secondary">
+                ← Back to Dashboard
+            </a>
+            <button type="submit" class="btn btn-primary">
+                Save Settings
+            </button>
+        </div>
+    </form>
+
+    <!-- Setup Instructions -->
+    <div class="config-section mt-8">
+        <div class="section-header">
+            <h2 class="section-title">📋 Setup Instructions</h2>
+            <p class="section-description">Step-by-step guide to start receiving receipts</p>
+        </div>
+        <div class="section-content">
+            <ol class="step-list">
+                <li class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">Copy your receipt email address</div>
+                        <div class="step-description">Use the copy button above to get your unique receipt email address.</div>
+                    </div>
+                </li>
+                <li class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">Forward a test receipt</div>
+                        <div class="step-description">Find a recent grocery receipt email and forward it to your receipt address.</div>
+                    </div>
+                </li>
+                <li class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">Review parsed items</div>
+                        <div class="step-description">Check the integration dashboard for processed receipts and approve items.</div>
+                    </div>
+                </li>
+                <li class="step-item">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-title">Set up automatic forwarding</div>
+                        <div class="step-description">Create email rules to automatically forward receipts from your grocery stores.</div>
+                    </div>
+                </li>
+            </ol>
+            
+            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 class="font-medium text-blue-900 mb-2">💡 Pro Tip</h4>
+                <p class="text-blue-700 text-sm">
+                    Most email clients let you create rules to automatically forward emails from specific senders. 
+                    Set up rules for your grocery stores to make this completely automatic!
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyEmail() {
+    const emailText = document.getElementById('receipt-email').textContent.trim();
+    navigator.clipboard.writeText(emailText).then(() => {
+        const button = document.querySelector('.copy-button');
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        button.style.background = '#059669';
+        
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.style.background = '#10b981';
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy email:', err);
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = emailText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        const button = document.querySelector('.copy-button');
+        button.textContent = 'Copied!';
+        setTimeout(() => {
+            button.textContent = 'Copy';
+        }, 2000);
+    });
+}
+
+function updateThresholdDisplay(value) {
+    const percent = Math.round(value * 100);
+    document.getElementById('threshold-display').textContent = percent + '%';
+}
+
+// Initialize threshold display
+document.addEventListener('DOMContentLoaded', function() {
+    const threshold = {{ config.confidence_threshold }};
+    updateThresholdDisplay(threshold);
+});
+</script>
+{% endblock %}

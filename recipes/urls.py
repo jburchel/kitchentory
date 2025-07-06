@@ -19,6 +19,7 @@ urlpatterns = [
     path('<slug:slug>/', views.recipe_detail, name='detail'),
     path('<slug:slug>/edit/', views.recipe_edit, name='edit'),
     path('<slug:slug>/print/', views.recipe_print, name='print'),
+    path('<slug:slug>/cook/', views.recipe_cooking, name='cooking'),
     
     # Recipe interactions
     path('<slug:slug>/like/', views.recipe_like, name='like'),

@@ -3,6 +3,7 @@
 ## Design Principles
 
 ### Core Principles
+
 1. **Mobile-First**: Every interface designed for thumb-friendly mobile use
 2. **Speed**: Instant feedback, optimistic updates, minimal loading states
 3. **Clarity**: Clear visual hierarchy, obvious actions, minimal cognitive load
@@ -10,6 +11,7 @@
 5. **Accessibility**: WCAG 2.1 AA compliant, screen reader friendly
 
 ### Visual Design Philosophy
+
 - Clean, modern interface with ample whitespace
 - Food-inspired color palette with green accents
 - Card-based layouts for scannable content
@@ -47,6 +49,7 @@
 ```
 
 ### Navigation Patterns
+
 - **Mobile**: Fixed bottom navigation with 5 main sections
 - **Desktop**: Responsive sidebar with expanded navigation
 - **Quick Actions**: Floating action button for primary tasks
@@ -84,6 +87,7 @@
 ```
 
 ### Typography
+
 ```css
 /* Font Stack */
 --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
@@ -106,6 +110,7 @@
 ```
 
 ### Spacing System
+
 ```css
 /* Spacing Scale (rem) */
 --space-1: 0.25rem;   /* 4px */
@@ -123,6 +128,7 @@
 ## Page Layouts
 
 ### Dashboard
+
 ```
 ┌─────────────────────────────────┐
 │ Welcome, [Name]      [Avatar]   │ Header
@@ -146,6 +152,7 @@
 ```
 
 ### Inventory List
+
 ```
 ┌─────────────────────────────────┐
 │ [<] Inventory      [Search] [⋮] │ Header
@@ -166,6 +173,7 @@
 ```
 
 ### Recipe Discovery
+
 ```
 ┌─────────────────────────────────┐
 │ Recipe Discovery                │ Header
@@ -187,6 +195,7 @@
 ## Component Library
 
 ### Cards
+
 ```html
 <!-- Inventory Item Card -->
 <div class="card">
@@ -214,6 +223,7 @@
 ```
 
 ### Forms
+
 ```html
 <!-- Search Input -->
 <div class="search-container">
@@ -260,6 +270,7 @@
 ## Interactive Elements
 
 ### Barcode Scanner
+
 ```
 ┌─────────────────────────────────┐
 │ [X] Scan Barcode                │
@@ -278,6 +289,7 @@
 ```
 
 ### Cooking Mode
+
 ```
 ┌─────────────────────────────────┐
 │ [X] Cooking: Pasta Carbonara    │
@@ -303,6 +315,7 @@
 ## Responsive Breakpoints
 
 ### Breakpoint System
+
 ```css
 /* Mobile First Approach */
 --screen-sm: 640px;   /* Small tablets */
@@ -312,6 +325,7 @@
 ```
 
 ### Layout Adaptations
+
 - **Mobile (< 640px)**: Single column, bottom navigation
 - **Tablet (640px - 1024px)**: 2 column grids, side navigation
 - **Desktop (> 1024px)**: 3-4 column grids, expanded sidebar
@@ -319,6 +333,7 @@
 ## Animation & Transitions
 
 ### Micro-interactions
+
 ```css
 /* Standard Transitions */
 --transition-fast: 150ms ease-in-out;
@@ -343,6 +358,7 @@
 ```
 
 ### Page Transitions
+
 - Slide transitions between main sections
 - Fade in/out for modal overlays
 - Smooth scroll for anchor links
@@ -351,6 +367,7 @@
 ## Accessibility Guidelines
 
 ### WCAG 2.1 AA Compliance
+
 - Minimum contrast ratio 4.5:1 for normal text
 - Minimum contrast ratio 3:1 for large text
 - All interactive elements keyboard accessible
@@ -358,6 +375,7 @@
 - ARIA labels for icon-only buttons
 
 ### Screen Reader Support
+
 ```html
 <!-- Accessible Card Example -->
 <article class="card" role="article" aria-label="Inventory item">
@@ -374,18 +392,21 @@
 ## Performance Considerations
 
 ### Image Optimization
+
 - Lazy load images below the fold
 - Use WebP format with JPEG fallback
 - Responsive images with srcset
 - Blur-up technique for progressive loading
 
 ### Code Splitting
+
 - Route-based code splitting
 - Lazy load heavy components (scanner, charts)
 - Preload critical resources
 - Service worker for offline functionality
 
 ### Caching Strategy
+
 - Cache static assets aggressively
 - API response caching with invalidation
 - Optimistic UI updates
@@ -394,6 +415,7 @@
 ## Error States & Empty States
 
 ### Error Handling
+
 ```html
 <!-- Error Message Component -->
 <div class="error-state">
@@ -405,6 +427,7 @@
 ```
 
 ### Empty States
+
 ```html
 <!-- Empty Inventory -->
 <div class="empty-state">
@@ -418,18 +441,21 @@
 ## Mobile-Specific Features
 
 ### Touch Gestures
+
 - Swipe to delete/archive items
 - Pull to refresh on lists
 - Pinch to zoom on images
 - Long press for context menus
 
 ### Device Features
+
 - Camera access for barcode scanning
 - Haptic feedback for actions
 - Push notifications (PWA)
 - Add to home screen prompt
 
 ### Offline Functionality
+
 - View cached inventory
 - Add items to queue
 - Browse saved recipes
@@ -438,18 +464,21 @@
 ## Future Design Considerations
 
 ### Dark Mode
+
 - System preference detection
 - Manual toggle option
 - Adjusted color palette
 - Reduced contrast for comfort
 
 ### Internationalization
+
 - RTL layout support
 - Flexible text containers
 - Culturally neutral icons
 - Date/time format flexibility
 
 ### Tablet Optimization
+
 - Multi-column layouts
 - Sidebar navigation
 - Keyboard shortcuts

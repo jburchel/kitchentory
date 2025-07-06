@@ -1,538 +1,146 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ shopping_list.name }} - Kitchentory{% endblock %}
-
-{% block extra_css %}
-<style>
-    .sortable-ghost {
-        opacity: 0.4;
-        background: #f3f4f6;
-    }
-    .sortable-drag {
-        opacity: 1 !important;
-    }
-</style>
-{% endblock %}
+{% block title %}{{ shopping_list.name }} - Shopping List - Kitchentory{% endblock %}
 
 {% block content %}
 <div class="shopping-list-detail max-w-4xl mx-auto px-4 py-6">
     <!-- Header -->
-    <div class="list-header mb-8">
-        <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center space-x-4">
-                <a href="{% url 'shopping:dashboard' %}" 
-                   class="text-gray-600 hover:text-gray-900">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
-                </a>
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900">{{ shopping_list.name }}</h1>
-                    <p class="text-gray-600">{{ shopping_list.description }}</p>
-                </div>
+    <div class="mb-8">
+        <div class="flex items-center space-x-4 mb-4">
+            <a href="{% url 'shopping:dashboard' %}" 
+               class="text-gray-600 hover:text-gray-900">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+            </a>
+            <div class="flex-1">
+                <h1 class="text-2xl font-bold text-gray-900">{{ shopping_list.name }}</h1>
+                {% if shopping_list.description %}
+                <p class="text-gray-600 mt-1">{{ shopping_list.description }}</p>
+                {% endif %}
             </div>
-            
-            {% if can_edit %}
             <div class="flex items-center space-x-2">
-                <button onclick="optimizeList()" 
-                        class="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                    </svg>
-                </button>
-                <a href="{% url 'shopping:list_edit' shopping_list.id %}" 
-                   class="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                </a>
+                <span class="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">
+                    {{ shopping_list.get_status_display }}
+                </span>
             </div>
-            {% endif %}
         </div>
         
-        <!-- Status Bar -->
-        <div class="bg-white rounded-lg shadow-sm border p-4">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                    <p class="text-sm text-gray-600">Status</p>
-                    <p class="font-semibold text-gray-900">
-                        {% if shopping_list.status == 'shopping' %}
-                            <span class="text-green-600">Shopping</span>
-                        {% elif shopping_list.status == 'completed' %}
-                            <span class="text-blue-600">Completed</span>
-                        {% else %}
-                            <span class="text-gray-600">Active</span>
-                        {% endif %}
-                    </p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-600">Progress</p>
-                    <p class="font-semibold text-gray-900">
-                        {{ shopping_list.completed_items }}/{{ shopping_list.total_items }}
-                    </p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-600">Est. Total</p>
-                    <p class="font-semibold text-gray-900">${{ shopping_list.estimated_total|floatformat:2 }}</p>
-                </div>
-                {% if shopping_list.store %}
-                <div>
-                    <p class="text-sm text-gray-600">Store</p>
-                    <p class="font-semibold text-gray-900">{{ shopping_list.store.name }}</p>
-                </div>
-                {% endif %}
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white rounded-lg border p-4">
+                <div class="text-2xl font-semibold text-gray-900">{{ shopping_list.total_items }}</div>
+                <div class="text-sm text-gray-600">Total Items</div>
+            </div>
+            <div class="bg-white rounded-lg border p-4">
+                <div class="text-2xl font-semibold text-green-600">{{ shopping_list.completed_items }}</div>
+                <div class="text-sm text-gray-600">Completed</div>
+            </div>
+            <div class="bg-white rounded-lg border p-4">
+                <div class="text-2xl font-semibold text-orange-600">{{ shopping_list.remaining_items }}</div>
+                <div class="text-sm text-gray-600">Remaining</div>
+            </div>
+            <div class="bg-white rounded-lg border p-4">
+                <div class="text-2xl font-semibold text-blue-600">{{ shopping_list.completion_percentage|floatformat:0 }}%</div>
+                <div class="text-sm text-gray-600">Complete</div>
             </div>
         </div>
     </div>
-    
-    <!-- Shopping Actions -->
-    {% if can_edit and shopping_list.status != 'completed' %}
-    <div class="shopping-actions mb-6">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                {% if shopping_list.status == 'active' %}
-                <button onclick="startShopping()" 
-                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                    </svg>
-                    <span>Start Shopping</span>
-                </button>
-                {% elif shopping_list.status == 'shopping' %}
-                <button onclick="completeShopping()" 
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <span>Complete Shopping</span>
-                </button>
-                {% endif %}
-                
-                <button onclick="consolidateItems()" 
-                        class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 text-sm">
-                    Consolidate Duplicates
-                </button>
-            </div>
-            
-            <!-- Add Item Form -->
-            <form onsubmit="addItem(event)" class="flex items-center space-x-2">
-                <input type="text" 
-                       id="newItemName"
-                       placeholder="Add item..." 
-                       class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <input type="number" 
-                       id="newItemQuantity"
-                       placeholder="Qty" 
-                       value="1"
-                       min="0.1"
-                       step="0.1"
-                       class="w-20 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <button type="submit" 
-                        class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                </button>
-            </form>
-        </div>
-    </div>
-    {% endif %}
-    
-    <!-- Smart Suggestions -->
-    {% if suggestions and can_edit %}
-    <div class="smart-suggestions mb-6">
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 class="font-medium text-blue-900 mb-3">Suggested Additions</h3>
-            <div class="flex flex-wrap gap-2">
-                {% for suggestion in suggestions %}
-                <button onclick="addSuggestedItem('{{ suggestion.product.name }}', '{{ suggestion.product.id }}')"
-                        class="bg-white text-blue-700 px-3 py-1 rounded-full text-sm border border-blue-300 hover:bg-blue-100">
-                    {{ suggestion.product.name }}
-                    <span class="text-xs text-blue-600">({{ suggestion.reason }})</span>
-                </button>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
     
     <!-- Shopping List Items -->
-    <div class="shopping-items">
-        {% if sections %}
-        <!-- Items grouped by section -->
-        {% for section, items in sections.items %}
-        <div class="section-group mb-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm mr-2">{{ section }}</span>
-                <span class="text-sm text-gray-500 font-normal">{{ items|length }} items</span>
-            </h3>
-            
-            <div id="section-{{ section|slugify }}" class="sortable-list space-y-2">
+    <div class="bg-white rounded-lg shadow-sm border">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-medium text-gray-900">Shopping Items</h2>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                    Add Item
+                </button>
+            </div>
+        </div>
+        
+        <div class="divide-y divide-gray-200">
+            {% if items %}
                 {% for item in items %}
-                <div class="shopping-item bg-white rounded-lg border hover:shadow-sm transition-shadow p-4" 
-                     data-item-id="{{ item.id }}">
-                    <div class="flex items-center">
-                        {% if can_edit %}
-                        <div class="drag-handle cursor-move mr-3 text-gray-400 hover:text-gray-600">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                            </svg>
-                        </div>
-                        {% endif %}
-                        
+                <div class="px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
                         <input type="checkbox" 
-                               id="item-{{ item.id }}"
                                {% if item.is_purchased %}checked{% endif %}
-                               {% if not can_edit %}disabled{% endif %}
-                               onchange="toggleItemPurchased({{ item.id }}, this.checked)"
-                               class="mr-3 h-5 w-5 text-green-600 rounded focus:ring-green-500">
-                        
-                        <label for="item-{{ item.id }}" 
-                               class="flex-1 cursor-pointer {% if item.is_purchased %}line-through text-gray-500{% endif %}">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <span class="font-medium">{{ item.name }}</span>
-                                    <span class="text-gray-600 ml-2">
-                                        {{ item.quantity|floatformat:"-2" }} {{ item.unit }}
-                                    </span>
-                                    {% if item.notes %}
-                                    <p class="text-sm text-gray-500 mt-1">{{ item.notes }}</p>
-                                    {% endif %}
-                                </div>
-                                
-                                <div class="flex items-center space-x-4">
-                                    {% if item.priority == 'urgent' %}
-                                    <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Urgent</span>
-                                    {% elif item.priority == 'high' %}
-                                    <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">High</span>
-                                    {% endif %}
-                                    
-                                    {% if item.estimated_price %}
-                                    <span class="text-sm text-gray-600">${{ item.estimated_price|floatformat:2 }}</span>
-                                    {% endif %}
-                                    
-                                    {% if can_edit %}
-                                    <button onclick="deleteItem({{ item.id }})" 
-                                            class="text-red-600 hover:text-red-800">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
-                                    </button>
-                                    {% endif %}
-                                </div>
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <div class="flex-1">
+                            <h3 class="text-sm font-medium text-gray-900 {% if item.is_purchased %}line-through text-gray-500{% endif %}">
+                                {{ item.name }}
+                            </h3>
+                            <div class="text-xs text-gray-500 mt-1">
+                                {% if item.quantity %}{{ item.quantity }}{% endif %}
+                                {% if item.unit %}{{ item.unit }}{% endif %}
+                                {% if item.category %} • {{ item.category }}{% endif %}
+                                {% if item.estimated_price %} • ${{ item.estimated_price }}{% endif %}
                             </div>
-                        </label>
+                            {% if item.notes %}
+                            <p class="text-xs text-gray-600 mt-1">{{ item.notes }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        {% if item.priority == 'high' or item.priority == 'urgent' %}
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            {{ item.get_priority_display }}
+                        </span>
+                        {% endif %}
+                        <button class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
                 {% endfor %}
-            </div>
+            {% else %}
+                <div class="px-6 py-12 text-center">
+                    <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No items yet</h3>
+                    <p class="text-gray-600 mb-4">Add items to your shopping list to get started</p>
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        Add First Item
+                    </button>
+                </div>
+            {% endif %}
         </div>
-        {% endfor %}
-        {% else %}
-        <div class="bg-gray-50 rounded-lg p-12 text-center">
-            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
-            </svg>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">No items yet</h3>
-            <p class="text-gray-600">Add items to your shopping list to get started</p>
-        </div>
-        {% endif %}
     </div>
     
-    <!-- Completed Items -->
-    {% if completed_items %}
-    <div class="completed-items mt-8">
-        <h3 class="text-lg font-semibold text-gray-900 mb-3">Completed Items</h3>
-        <div class="space-y-2">
-            {% for item in completed_items %}
-            <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <input type="checkbox" 
-                               checked
-                               {% if not can_edit %}disabled{% endif %}
-                               onchange="toggleItemPurchased({{ item.id }}, false)"
-                               class="mr-3 h-5 w-5 text-green-600 rounded">
-                        <span class="line-through text-gray-500">
-                            {{ item.name }} - {{ item.quantity|floatformat:"-2" }} {{ item.unit }}
-                        </span>
-                    </div>
-                    {% if item.actual_price %}
-                    <span class="text-sm text-gray-600">${{ item.actual_price|floatformat:2 }}</span>
-                    {% endif %}
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-</div>
-
-<!-- Complete Shopping Modal -->
-<div id="completeShoppingModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 max-w-md w-full">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Complete Shopping Trip</h3>
-        <form onsubmit="submitCompleteShopping(event)">
-            <div class="mb-4">
-                <label for="actualTotal" class="block text-sm font-medium text-gray-700 mb-2">
-                    Total Amount Spent (Optional)
-                </label>
-                <div class="relative">
-                    <span class="absolute left-3 top-2 text-gray-500">$</span>
-                    <input type="number" 
-                           id="actualTotal"
-                           step="0.01"
-                           placeholder="0.00"
-                           class="pl-8 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-            </div>
-            <div class="flex justify-end space-x-3">
-                <button type="button" 
-                        onclick="closeCompleteModal()"
-                        class="px-4 py-2 text-gray-700 hover:text-gray-900">
-                    Cancel
-                </button>
-                <button type="submit" 
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                    Complete
-                </button>
-            </div>
-        </form>
+    <!-- List Actions -->
+    <div class="mt-8 flex flex-col sm:flex-row gap-4">
+        <button class="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+            {% if shopping_list.status == 'active' %}
+            Start Shopping
+            {% elif shopping_list.status == 'shopping' %}
+            Continue Shopping
+            {% else %}
+            Complete Shopping
+            {% endif %}
+        </button>
+        <button class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+            Share List
+        </button>
+        <button class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+            Delete List
+        </button>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script>
-// CSRF token for AJAX requests
-const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-// Initialize sortable lists
-{% if can_edit %}
-document.querySelectorAll('.sortable-list').forEach(list => {
-    new Sortable(list, {
-        handle: '.drag-handle',
-        animation: 150,
-        ghostClass: 'sortable-ghost',
-        dragClass: 'sortable-drag',
-        onEnd: function(evt) {
-            updateItemOrder(evt.item.dataset.itemId, evt.newIndex);
-        }
+// Handle checkbox changes for item completion
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            // TODO: Add HTMX call to update item status
+            console.log('Item status changed:', this.checked);
+        });
     });
 });
-{% endif %}
-
-// Add new item
-async function addItem(event) {
-    event.preventDefault();
-    
-    const name = document.getElementById('newItemName').value;
-    const quantity = document.getElementById('newItemQuantity').value;
-    
-    if (!name) return;
-    
-    try {
-        const response = await fetch("{% url 'shopping:add_item' shopping_list.id %}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-            },
-            body: JSON.stringify({
-                name: name,
-                quantity: quantity
-            })
-        });
-        
-        if (response.ok) {
-            location.reload();
-        }
-    } catch (error) {
-        console.error('Error adding item:', error);
-    }
-}
-
-// Toggle item purchased status
-async function toggleItemPurchased(itemId, isPurchased) {
-    try {
-        const response = await fetch(`/shopping/item/${itemId}/toggle/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-            },
-            body: JSON.stringify({
-                is_purchased: isPurchased
-            })
-        });
-        
-        if (response.ok) {
-            location.reload();
-        }
-    } catch (error) {
-        console.error('Error toggling item:', error);
-    }
-}
-
-// Delete item
-async function deleteItem(itemId) {
-    if (!confirm('Delete this item?')) return;
-    
-    try {
-        const response = await fetch(`/shopping/item/${itemId}/delete/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken
-            }
-        });
-        
-        if (response.ok) {
-            location.reload();
-        }
-    } catch (error) {
-        console.error('Error deleting item:', error);
-    }
-}
-
-// Start shopping
-async function startShopping() {
-    try {
-        const response = await fetch("{% url 'shopping:start_shopping' shopping_list.id %}", {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken
-            }
-        });
-        
-        if (response.ok) {
-            location.reload();
-        }
-    } catch (error) {
-        console.error('Error starting shopping:', error);
-    }
-}
-
-// Complete shopping
-function completeShopping() {
-    document.getElementById('completeShoppingModal').classList.remove('hidden');
-}
-
-function closeCompleteModal() {
-    document.getElementById('completeShoppingModal').classList.add('hidden');
-}
-
-async function submitCompleteShopping(event) {
-    event.preventDefault();
-    
-    const actualTotal = document.getElementById('actualTotal').value;
-    
-    try {
-        const response = await fetch("{% url 'shopping:complete_shopping' shopping_list.id %}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-            },
-            body: JSON.stringify({
-                actual_total: actualTotal || null
-            })
-        });
-        
-        if (response.ok) {
-            location.reload();
-        }
-    } catch (error) {
-        console.error('Error completing shopping:', error);
-    }
-}
-
-// Optimize list
-async function optimizeList() {
-    try {
-        const response = await fetch("{% url 'shopping:optimize_list' shopping_list.id %}", {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken
-            }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            alert(`List optimized! ${data.message}`);
-            location.reload();
-        }
-    } catch (error) {
-        console.error('Error optimizing list:', error);
-    }
-}
-
-// Consolidate items
-async function consolidateItems() {
-    try {
-        const response = await fetch("{% url 'shopping:consolidate_list' shopping_list.id %}", {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken
-            }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            alert(data.message);
-            location.reload();
-        }
-    } catch (error) {
-        console.error('Error consolidating items:', error);
-    }
-}
-
-// Update item order (for drag and drop)
-async function updateItemOrder(itemId, newIndex) {
-    try {
-        const response = await fetch(`/shopping/item/${itemId}/update/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-            },
-            body: JSON.stringify({
-                custom_order: newIndex
-            })
-        });
-        
-        if (!response.ok) {
-            console.error('Failed to update item order');
-        }
-    } catch (error) {
-        console.error('Error updating item order:', error);
-    }
-}
-
-// Add suggested item
-async function addSuggestedItem(name, productId) {
-    try {
-        const response = await fetch("{% url 'shopping:add_item' shopping_list.id %}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-            },
-            body: JSON.stringify({
-                name: name,
-                product_id: productId,
-                quantity: 1
-            })
-        });
-        
-        if (response.ok) {
-            location.reload();
-        }
-    } catch (error) {
-        console.error('Error adding suggested item:', error);
-    }
-}
 </script>
 {% endblock %}

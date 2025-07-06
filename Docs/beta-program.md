@@ -28,16 +28,19 @@ The Kitchentory Beta Program gives you early access to new features and improvem
 ### Beta Phases
 
 **Phase 1: Closed Beta (Current)**
+
 - Limited to 100 invited users
 - Focus on core functionality testing
 - Direct communication with development team
 
 **Phase 2: Open Beta (Coming Soon)**
+
 - Open to 1,000 users
 - Broader feature testing
 - Community feedback integration
 
-**Phase 3: Release Candidate**
+**Phase 3: Release Candidate*
+
 - Open to 5,000 users
 - Final testing before public launch
 - Performance and scaling validation
@@ -45,16 +48,19 @@ The Kitchentory Beta Program gives you early access to new features and improvem
 ## What You'll Get
 
 ### Early Access
+
 - Access to new features weeks or months before public release
 - Preview of upcoming functionality and improvements
 - Exclusive beta-only features for testing
 
 ### Direct Impact
+
 - Your feedback directly influences product development
 - Opportunity to suggest new features and improvements
 - Recognition as a valued beta contributor
 
 ### Exclusive Benefits
+
 - **Priority Support**: Direct line to our development team
 - **Beta Badge**: Special recognition in your profile
 - **Lifetime Discount**: 50% off premium features when launched
@@ -62,6 +68,7 @@ The Kitchentory Beta Program gives you early access to new features and improvem
 - **Early Bird Pricing**: Lock in discounted rates for premium features
 
 ### Community Access
+
 - Private Discord channel for beta testers
 - Monthly video calls with the development team
 - Advance notice of product roadmap updates
@@ -70,18 +77,21 @@ The Kitchentory Beta Program gives you early access to new features and improvem
 ## What We Expect
 
 ### Active Participation
+
 - **Regular Usage**: Use Kitchentory at least 3 times per week
 - **Feature Testing**: Try new features within 48 hours of release
 - **Feedback Submission**: Provide detailed feedback on issues and suggestions
 - **Bug Reporting**: Report bugs with clear reproduction steps
 
 ### Quality Feedback
+
 - **Detailed Reports**: Include screenshots, steps to reproduce, and expected behavior
 - **Constructive Criticism**: Focus on specific issues and potential solutions
 - **Timely Responses**: Respond to follow-up questions within 3 business days
 - **Feature Evaluation**: Test and evaluate new features thoroughly
 
 ### Communication
+
 - **Discord Participation**: Engage in community discussions
 - **Survey Completion**: Complete monthly feedback surveys
 - **Call Attendance**: Join quarterly beta review calls (optional)
@@ -100,6 +110,7 @@ The Kitchentory Beta Program gives you early access to new features and improvem
 ### Selection Criteria
 
 We prioritize applicants who:
+
 - Have experience with kitchen management or cooking apps
 - Show enthusiasm for testing and providing feedback
 - Have a history of constructive community participation
@@ -119,24 +130,28 @@ We prioritize applicants who:
 ### Currently Available
 
 #### Smart Inventory Management
+
 - **AI-Powered Categorization**: Automatic product categorization
 - **Expiration Predictions**: ML-based expiration date estimation
 - **Usage Pattern Learning**: Personalized consumption tracking
 - **Smart Notifications**: Intelligent alerts based on your habits
 
 #### Advanced Recipe Matching
+
 - **Ingredient Substitution**: AI-suggested ingredient replacements
 - **Nutritional Analysis**: Detailed nutrition breakdowns
 - **Dietary Adaptation**: Automatic recipe modifications for dietary restrictions
 - **Skill-Based Recommendations**: Recipes matched to your cooking level
 
 #### Enhanced Shopping Lists
+
 - **Store Layout Optimization**: Lists organized by store aisle
 - **Price Comparison**: Real-time price tracking across stores
 - **Group Shopping**: Collaborative shopping with family/roommates
 - **Voice Commands**: Add items using voice recognition
 
 #### Mobile PWA Features
+
 - **Offline Mode**: Full functionality without internet
 - **Camera Integration**: Barcode scanning and receipt capture
 - **Haptic Feedback**: Touch responses for better UX
@@ -145,18 +160,21 @@ We prioritize applicants who:
 ### Coming Soon
 
 #### Kitchen Analytics Dashboard
+
 - **Waste Reduction Metrics**: Track and reduce food waste
 - **Budget Analysis**: Spending patterns and optimization
 - **Nutrition Tracking**: Health insights and recommendations
 - **Seasonal Insights**: Seasonal eating and shopping patterns
 
 #### Smart Home Integration
+
 - **Alexa/Google Skills**: Voice control for major functions
 - **Smart Fridge Integration**: Automatic inventory updates
 - **Recipe Assistant**: Step-by-step cooking guidance
 - **Grocery Delivery**: Direct integration with delivery services
 
 #### Social Features
+
 - **Recipe Sharing**: Share and discover recipes in community
 - **Cooking Challenges**: Monthly challenges and competitions
 - **Family Meal Planning**: Collaborative meal planning tools
@@ -169,6 +187,7 @@ We prioritize applicants who:
 Use our integrated feedback system or report via:
 
 **In-App Reporting**
+
 1. Tap the "?" icon in any screen
 2. Select "Report Bug"
 3. Fill out the form with details
@@ -176,11 +195,13 @@ Use our integrated feedback system or report via:
 5. Submit report
 
 **Discord Channel**
+
 - Post in #bug-reports channel
 - Use the bug report template
 - Tag @developers for urgent issues
 
 **Email Support**
+
 - Send to beta@kitchentory.com
 - Include device info and app version
 - Attach screenshots or screen recordings
@@ -188,18 +209,21 @@ Use our integrated feedback system or report via:
 ### Feature Feedback
 
 **Feature Request Form**
+
 - Accessible from Settings → Beta Program
 - Rate features from 1-5 stars
 - Provide detailed written feedback
 - Suggest improvements or alternatives
 
 **Monthly Surveys**
+
 - Sent via email on the 1st of each month
 - 10-15 minutes to complete
 - Covers recent feature releases
 - Helps prioritize development roadmap
 
 **Focus Groups**
+
 - Quarterly video calls with beta testers
 - Deep dive into specific features
 - Direct conversation with product team
@@ -208,6 +232,7 @@ Use our integrated feedback system or report via:
 ### Feedback Guidelines
 
 **Effective Bug Reports Include:**
+
 - Clear description of the issue
 - Steps to reproduce the problem
 - Expected vs. actual behavior
@@ -216,6 +241,7 @@ Use our integrated feedback system or report via:
 - App version number
 
 **Valuable Feature Feedback Includes:**
+
 - Specific use cases for the feature
 - How it fits into your workflow
 - Comparison with similar apps
@@ -227,16 +253,19 @@ Use our integrated feedback system or report via:
 ### Current Known Issues
 
 **High Priority**
+
 - **Sync Delays**: Occasional delays in data synchronization across devices
 - **Camera Focus**: Barcode scanner may have trouble focusing in low light
 - **Notification Timing**: Some notifications may arrive with slight delays
 
 **Medium Priority**
+
 - **Search Performance**: Recipe search may be slow with large inventories
 - **Export Function**: CSV export occasionally includes formatting issues
 - **Image Upload**: Large images may take longer to process
 
 **Low Priority**
+
 - **Dark Mode**: Some screens may not fully support dark theme
 - **Landscape Mode**: Limited landscape support on certain screens
 - **Voice Input**: Voice recognition accuracy varies by accent
@@ -257,16 +286,19 @@ All high-priority issues are targeted for resolution in the next release. Medium
 ### Beta Support Channels
 
 **Primary Support**
+
 - **Discord**: Real-time chat in beta channels
 - **Email**: beta@kitchentory.com (24-hour response time)
 - **In-App**: Built-in help and feedback system
 
 **Documentation**
+
 - **Beta Wiki**: Comprehensive guides and FAQs
 - **Video Tutorials**: Screen recordings of new features
 - **Release Notes**: Detailed changelog for each update
 
 **Community Support**
+
 - **Peer Help**: Other beta testers sharing solutions
 - **Expert Users**: Experienced testers mentoring newcomers
 - **Developer Q&A**: Regular AMA sessions with the team
@@ -274,11 +306,13 @@ All high-priority issues are targeted for resolution in the next release. Medium
 ### Support Hours
 
 **Beta Team Availability**
+
 - Monday-Friday: 9 AM - 6 PM EST
 - Response time: Within 4 hours during business hours
 - Emergency issues: Check Discord for immediate help
 
 **Community Support**
+
 - Available 24/7 through Discord
 - Most active times: 6 PM - 10 PM EST
 - Weekend support through community volunteers
@@ -290,16 +324,19 @@ All high-priority issues are targeted for resolution in the next release. Medium
 By participating in the Kitchentory Beta Program, you agree to:
 
 **Confidentiality**
+
 - Keep beta features confidential until public release
 - Not share screenshots or details of unreleased features publicly
 - Sign NDA for access to advanced beta features
 
 **Testing Commitment**
+
 - Use the app regularly and provide honest feedback
 - Report bugs and issues in a timely manner
 - Participate in surveys and feedback requests
 
 **Data and Privacy**
+
 - Allow collection of usage analytics for improvement
 - Understand that beta data may not be fully backed up
 - Accept that some features may change or be removed
@@ -307,16 +344,19 @@ By participating in the Kitchentory Beta Program, you agree to:
 ### Limitations
 
 **No Warranty**
+
 - Beta software is provided "as is" without warranty
 - Features may be unstable or incomplete
 - Data loss, while unlikely, is possible
 
 **Feature Changes**
+
 - Beta features may be modified or removed
 - No guarantee that beta features will reach public release
 - Feedback may influence but not guarantee feature inclusion
 
 **Support Limitations**
+
 - Beta support is best-effort, not guaranteed SLA
 - Some issues may not be resolved immediately
 - Priority is given to issues affecting the most users
@@ -324,11 +364,13 @@ By participating in the Kitchentory Beta Program, you agree to:
 ### Termination
 
 **Program Termination**
+
 - Either party may terminate participation at any time
 - Kitchentory reserves the right to remove beta access
 - Termination may occur for violation of terms
 
 **Data Retention**
+
 - Beta data will be migrated to public release when available
 - Some beta-only features may not transfer
 - Export options available before termination
@@ -346,18 +388,21 @@ By participating in the Kitchentory Beta Program, you agree to:
 ### Quick Start Guide
 
 **Week 1: Foundation**
+
 - Set up inventory with 10-20 items
 - Add 2-3 favorite recipes
 - Create your first shopping list
 - Explore basic navigation
 
 **Week 2: Advanced Features**
+
 - Try barcode scanning
 - Test recipe matching
 - Use voice commands
 - Provide initial feedback
 
 **Week 3: Deep Testing**
+
 - Test edge cases and unusual workflows
 - Try features you normally wouldn't use
 - Report any bugs discovered

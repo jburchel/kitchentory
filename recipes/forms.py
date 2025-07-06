@@ -318,12 +318,53 @@ class RecipeImportForm(forms.Form):
     """
     Form for importing recipes from URLs.
     """
+    
+    # Popular recipe URLs for quick selection
+    POPULAR_RECIPES = [
+        ('', _('Choose a popular recipe...')),
+        # Budget Bytes (Free, scraping-friendly)
+        ('https://www.budgetbytes.com/one-pot-creamy-cajun-chicken-pasta/', 'Creamy Cajun Chicken Pasta - Budget Bytes'),
+        ('https://www.budgetbytes.com/hearty-black-bean-quesadillas/', 'Hearty Black Bean Quesadillas - Budget Bytes'),
+        ('https://www.budgetbytes.com/dragon-noodles/', 'Dragon Noodles - Budget Bytes'),
+        # Food.com (Community recipes)
+        ('https://www.food.com/recipe/creamy-chicken-and-rice-casserole-87376', 'Lemony Chicken - Food.com'),
+        ('https://www.food.com/recipe/chicken-teriyaki-stir-fry-356351', 'Memphis Dry Rub Ribs - Food.com'),
+        # King Arthur Baking (Trusted baking recipes)
+        ('https://www.kingarthurbaking.com/recipes/classic-chocolate-chip-cookies-recipe', 'Classic Chocolate Chip Cookies - King Arthur'),
+        ('https://www.kingarthurbaking.com/recipes/banana-bread-recipe', 'Banana Bread - King Arthur'),
+        # Sally\'s Baking Addiction (Popular baking blog)
+        ('https://sallysbakingaddiction.com/chocolate-chip-cookies/', 'Best Soft Chocolate Chip Cookies - Sally\'s Baking'),
+        # Bon Appétit (Professional recipes)
+        ('https://www.bonappetit.com/recipe/chocolate-chip-cookies', 'Chocolate Chip Cookies - Bon Appétit'),
+        ('https://www.bonappetit.com/recipe/banana-bread', 'BA\'s Best Banana Bread - Bon Appétit'),
+        # Food52 (Community-driven)
+        ('https://food52.com/recipes/23250-chocolate-chip-cookies', 'Aunt Mary\'s Tomato Tart - Food52'),
+        ('https://food52.com/recipes/14469-banana-bread', 'Corn Chowder (Vegan) - Food52'),
+        # NYT Cooking (Premium quality)
+        ('https://cooking.nytimes.com/recipes/1016062-chocolate-chip-cookies', 'Red Lentil Soup - NYT Cooking'),
+        ('https://cooking.nytimes.com/recipes/1018529-classic-meatballs', 'Coq au Vin - NYT Cooking'),
+        ('custom_url', _('Enter custom URL...')),
+    ]
+    
+    popular_recipe = forms.ChoiceField(
+        label=_('Popular Recipes'),
+        choices=POPULAR_RECIPES,
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'id': 'popular-recipe-select'
+        }),
+        help_text=_('Select a popular recipe to import, or choose "Enter custom URL" to input your own')
+    )
+    
     url = forms.URLField(
         label=_('Recipe URL'),
+        required=False,
         widget=forms.URLInput(attrs={
             'class': 'form-input',
             'placeholder': 'https://example.com/recipe',
-            'required': True
+            'id': 'custom-url-input',
+            'style': 'display: none;'
         }),
         help_text=_('Enter a URL from a supported recipe website')
     )
@@ -335,31 +376,38 @@ class RecipeImportForm(forms.Form):
         widget=forms.CheckboxInput(attrs={'class': 'form-checkbox'})
     )
     
-    def clean_url(self):
-        url = self.cleaned_data['url']
+    def clean(self):
+        cleaned_data = super().clean()
+        popular_recipe = cleaned_data.get('popular_recipe')
+        url = cleaned_data.get('url')
         
-        # Basic URL validation
-        validator = URLValidator()
-        try:
-            validator(url)
-        except forms.ValidationError:
-            raise forms.ValidationError(_('Please enter a valid URL.'))
+        # Determine which URL to use
+        final_url = None
         
-        # Check if URL is from a supported site (can be expanded)
-        supported_domains = [
-            'allrecipes.com', 'foodnetwork.com', 'food.com', 'epicurious.com',
-            'cooking.nytimes.com', 'tasty.co', 'delish.com', 'eatingwell.com',
-            'simplyrecipes.com', 'budgetbytes.com'
-        ]
+        if popular_recipe and popular_recipe != 'custom_url':
+            # Use the selected popular recipe URL
+            final_url = popular_recipe
+        elif popular_recipe == 'custom_url' and url:
+            # Use the custom URL input
+            final_url = url
+        elif not popular_recipe and url:
+            # Allow direct URL input if no popular recipe selected
+            final_url = url
+        else:
+            raise forms.ValidationError(_('Please select a popular recipe or enter a custom URL.'))
         
-        from urllib.parse import urlparse
-        domain = urlparse(url).netloc.lower()
-        domain = domain.replace('www.', '')
+        # Validate the final URL
+        if final_url:
+            validator = URLValidator()
+            try:
+                validator(final_url)
+            except forms.ValidationError:
+                raise forms.ValidationError(_('Please enter a valid URL.'))
+            
+            # Store the final URL in cleaned_data
+            cleaned_data['url'] = final_url
         
-        # For now, we'll be permissive and allow any URL
-        # In production, you might want to restrict to supported sites
-        
-        return url
+        return cleaned_data
 
 
 class QuickRecipeForm(forms.ModelForm):

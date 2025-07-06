@@ -17,6 +17,7 @@ from .forms import (
     RecipeForm, RecipeIngredientFormSet, RecipeStepFormSet,
     RecipeImportForm, QuickRecipeForm, RecipeSearchForm
 )
+from .utils import import_recipe_from_url, create_recipe_from_data
 
 
 @login_required
@@ -25,7 +26,10 @@ def recipe_list(request):
     Recipe discovery and search page.
     """
     form = RecipeSearchForm(request.GET or None)
-    recipes = Recipe.objects.filter(is_public=True).select_related('category').prefetch_related('tags')
+    # Show public recipes AND user's own recipes
+    recipes = Recipe.objects.filter(
+        Q(is_public=True) | Q(created_by=request.user)
+    ).select_related('category').prefetch_related('tags')
     
     # Apply search filters
     if form.is_valid():
@@ -483,6 +487,32 @@ def parse_ingredient_line(line):
         'name': name,
         'preparation': preparation
     }
+
+
+@login_required
+def recipe_cooking(request, slug):
+    """
+    Cooking mode view for step-by-step recipe execution.
+    """
+    recipe = get_object_or_404(Recipe, slug=slug)
+    
+    # Check if user can view this recipe
+    if not recipe.is_public and recipe.created_by != request.user:
+        messages.error(request, _('You do not have permission to view this recipe.'))
+        return redirect('recipes:list')
+    
+    # Get all ingredients and steps
+    ingredients = recipe.ingredients.all().order_by('order')
+    steps = recipe.steps.all().order_by('step_number')
+    
+    context = {
+        'recipe': recipe,
+        'ingredients': ingredients,
+        'steps': steps,
+        'total_steps': steps.count(),
+    }
+    
+    return render(request, 'recipes/cooking/start.html', context)
 
 
 # Import the functions from utils

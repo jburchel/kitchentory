@@ -407,6 +407,22 @@
   animation: tap-feedback 0.1s ease;
 }
 
+/* Desktop Navigation Sidebar */
+.desktop-sidebar {
+  display: none;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .desktop-sidebar {
+    display: flex;
+  }
+  
+  .mobile-nav {
+    display: none;
+  }
+}
+
 /* Mobile-specific utilities */
 .hide-on-mobile {
   display: none;

@@ -156,7 +156,7 @@ class QuickAddForm(forms.Form):
     )
     
     category = forms.ModelChoiceField(
-        queryset=Category.objects.filter(parent__isnull=False),
+        queryset=Category.objects.all(),
         widget=forms.Select(attrs={
             'class': 'form-select'
         })

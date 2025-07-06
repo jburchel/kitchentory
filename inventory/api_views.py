@@ -1,10 +1,12 @@
 import logging
 from django.db.models import Count, Q, Case, When, IntegerField
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from rest_framework import viewsets, status, filters
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 
 logger = logging.getLogger(__name__)
@@ -174,6 +176,7 @@ class StorageLocationViewSet(viewsets.ModelViewSet):
         )
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class InventoryItemViewSet(viewsets.ModelViewSet):
     """
     API viewset for inventory items.
@@ -244,6 +247,180 @@ class InventoryItemViewSet(viewsets.ModelViewSet):
             response_serializer = InventoryItemSerializer(item, context={'request': request})
             return Response(response_serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @method_decorator(csrf_exempt)
+    @action(detail=False, methods=['post'])
+    def bulk_add(self, request):
+        """Bulk add endpoint for browser extension"""
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        logger.info(f"bulk_add called by user: {request.user}, authenticated: {request.user.is_authenticated}")
+        logger.info(f"Request headers: {dict(request.headers)}")
+        
+        items_data = request.data.get('items', [])
+        
+        if not items_data or not isinstance(items_data, list):
+            return Response({
+                'error': 'items field required (list of item objects)'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Limit to prevent abuse
+        if len(items_data) > 100:
+            return Response({
+                'error': 'Maximum 100 items per request'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        created_items = []
+        errors = []
+        
+        # Get or create default category
+        default_category, _ = Category.objects.get_or_create(
+            name='Other',
+            defaults={'slug': 'other'}
+        )
+        
+        # Get or create default location
+        default_location, _ = StorageLocation.objects.get_or_create(
+            household=request.user.household,
+            name='Fridge',
+            defaults={
+                'location_type': 'fridge',
+                'created_by': request.user
+            }
+        )
+        
+        # Unit mapping for browser extension
+        unit_mapping = {
+            'item': 'count',
+            'items': 'count',
+            'each': 'count',
+            'piece': 'count',
+            'pieces': 'count',
+            'pack': 'count',
+            'package': 'count',
+            'count': 'count',
+            'lb': 'lb',
+            'lbs': 'lb',
+            'pound': 'lb',
+            'pounds': 'lb',
+            'oz': 'oz',
+            'ounce': 'oz',
+            'ounces': 'oz',
+            'g': 'g',
+            'gram': 'g',
+            'grams': 'g',
+            'kg': 'kg',
+            'kilogram': 'kg',
+            'kilograms': 'kg',
+            'ml': 'ml',
+            'milliliter': 'ml',
+            'milliliters': 'ml',
+            'l': 'l',
+            'liter': 'l',
+            'liters': 'l',
+            'cup': 'cup',
+            'cups': 'cup',
+            'tbsp': 'tbsp',
+            'tablespoon': 'tbsp',
+            'tablespoons': 'tbsp',
+            'tsp': 'tsp',
+            'teaspoon': 'tsp',
+            'teaspoons': 'tsp'
+        }
+        
+        for i, item_data in enumerate(items_data):
+            try:
+                # Normalize unit
+                unit = item_data.get('unit', 'item').lower().strip()
+                normalized_unit = unit_mapping.get(unit, 'count')
+                
+                # Get or create category
+                category_name = item_data.get('category', 'Other').strip()
+                if category_name:
+                    category, _ = Category.objects.get_or_create(
+                        name=category_name.title(),
+                        defaults={'slug': category_name.lower().replace(' ', '-')}
+                    )
+                else:
+                    category = default_category
+                
+                # Get or create location
+                location_name = item_data.get('location', 'Fridge').strip()
+                if location_name:
+                    location, _ = StorageLocation.objects.get_or_create(
+                        household=request.user.household,
+                        name=location_name.title(),
+                        defaults={
+                            'location_type': 'other',
+                            'created_by': request.user
+                        }
+                    )
+                else:
+                    location = default_location
+                
+                # Create or get product
+                product_name = item_data.get('name', '').strip()
+                if not product_name:
+                    errors.append({
+                        'index': i,
+                        'item': 'Unknown',
+                        'error': 'Product name is required'
+                    })
+                    continue
+                
+                brand = item_data.get('brand', '').strip()
+                product, created = Product.objects.get_or_create(
+                    name=product_name,
+                    brand=brand,
+                    defaults={
+                        'category': category,
+                        'default_unit': normalized_unit,
+                        'barcode': item_data.get('barcode', '').strip()
+                    }
+                )
+                
+                # Create inventory item
+                inventory_item = InventoryItem.objects.create(
+                    household=request.user.household,
+                    product=product,
+                    quantity=max(float(item_data.get('quantity', 1)), 0.01),
+                    unit=normalized_unit,
+                    location=location,
+                    price_paid=float(item_data.get('price')) if item_data.get('price') else None,
+                    notes=item_data.get('notes', ''),
+                    added_by=request.user
+                )
+                
+                created_items.append(inventory_item)
+                
+            except Exception as e:
+                logger.error(f"Error adding item {i}: {e}")
+                errors.append({
+                    'index': i,
+                    'item': item_data.get('name', 'Unknown'),
+                    'error': str(e)
+                })
+        
+        # Return results
+        response_data = {
+            'added': len(created_items),
+            'total': len(items_data),
+            'success': len(errors) == 0
+        }
+        
+        if errors:
+            response_data['errors'] = errors
+        
+        if created_items:
+            # Return serialized created items
+            response_serializer = InventoryItemListSerializer(
+                created_items, many=True, context={'request': request}
+            )
+            response_data['items'] = response_serializer.data
+        
+        status_code = status.HTTP_201_CREATED if created_items else status.HTTP_400_BAD_REQUEST
+        return Response(response_data, status=status_code)
 
     @action(detail=False, methods=['post'])
     def bulk_action(self, request):
@@ -350,3 +527,183 @@ class InventoryItemViewSet(viewsets.ModelViewSet):
         
         serializer = self.get_serializer(items, many=True)
         return Response(serializer.data)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def bulk_add_items(request):
+    """Standalone bulk add endpoint for browser extension"""
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    logger.info(f"bulk_add_items called by user: {request.user}, authenticated: {request.user.is_authenticated}")
+    logger.info(f"Request headers: {dict(request.headers)}")
+    
+    items_data = request.data.get('items', [])
+    
+    if not items_data or not isinstance(items_data, list):
+        return Response({
+            'error': 'items field required (list of item objects)'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Limit to prevent abuse
+    if len(items_data) > 100:
+        return Response({
+            'error': 'Maximum 100 items per request'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    created_items = []
+    errors = []
+    
+    # Get or create default category
+    default_category, _ = Category.objects.get_or_create(
+        name='Other',
+        defaults={'slug': 'other'}
+    )
+    
+    # Get or create default location
+    default_location, _ = StorageLocation.objects.get_or_create(
+        household=request.user.household,
+        name='Fridge',
+        defaults={
+            'location_type': 'fridge',
+            'created_by': request.user
+        }
+    )
+    
+    # Unit mapping for browser extension
+    unit_mapping = {
+        'item': 'count',
+        'items': 'count',
+        'each': 'count',
+        'piece': 'count',
+        'pieces': 'count',
+        'pack': 'count',
+        'package': 'count',
+        'count': 'count',
+        'lb': 'lb',
+        'lbs': 'lb',
+        'pound': 'lb',
+        'pounds': 'lb',
+        'oz': 'oz',
+        'ounce': 'oz',
+        'ounces': 'oz',
+        'g': 'g',
+        'gram': 'g',
+        'grams': 'g',
+        'kg': 'kg',
+        'kilogram': 'kg',
+        'kilograms': 'kg',
+        'ml': 'ml',
+        'milliliter': 'ml',
+        'milliliters': 'ml',
+        'l': 'l',
+        'liter': 'l',
+        'liters': 'l',
+        'cup': 'cup',
+        'cups': 'cup',
+        'tbsp': 'tbsp',
+        'tablespoon': 'tbsp',
+        'tablespoons': 'tbsp',
+        'tsp': 'tsp',
+        'teaspoon': 'tsp',
+        'teaspoons': 'tsp'
+    }
+    
+    for i, item_data in enumerate(items_data):
+        try:
+            # Normalize unit
+            unit = item_data.get('unit', 'item').lower().strip()
+            normalized_unit = unit_mapping.get(unit, 'count')
+            
+            # Get or create category
+            category_name = item_data.get('category', 'Other').strip()
+            if category_name:
+                category, _ = Category.objects.get_or_create(
+                    name=category_name.title(),
+                    defaults={'slug': category_name.lower().replace(' ', '-')}
+                )
+            else:
+                category = default_category
+            
+            # Get or create location
+            location_name = item_data.get('location', 'Fridge').strip()
+            if location_name:
+                location, _ = StorageLocation.objects.get_or_create(
+                    household=request.user.household,
+                    name=location_name.title(),
+                    defaults={
+                        'location_type': 'other',
+                        'created_by': request.user
+                    }
+                )
+            else:
+                location = default_location
+            
+            # Create or get product
+            product_name = item_data.get('name', '').strip()
+            if not product_name:
+                errors.append({
+                    'index': i,
+                    'item': 'Unknown',
+                    'error': 'Product name is required'
+                })
+                continue
+            
+            brand = item_data.get('brand', '').strip()
+            product, created = Product.objects.get_or_create(
+                name=product_name,
+                brand=brand,
+                defaults={
+                    'category': category,
+                    'default_unit': normalized_unit,
+                    'barcode': item_data.get('barcode', '').strip()
+                }
+            )
+            
+            # Create inventory item
+            inventory_item = InventoryItem.objects.create(
+                household=request.user.household,
+                product=product,
+                quantity=max(float(item_data.get('quantity', 1)), 0.01),
+                unit=normalized_unit,
+                location=location,
+                price_paid=float(item_data.get('price')) if item_data.get('price') else None,
+                notes=item_data.get('notes', ''),
+                added_by=request.user
+            )
+            
+            created_items.append(inventory_item)
+            
+        except Exception as e:
+            logger.error(f"Error adding item {i}: {e}")
+            errors.append({
+                'index': i,
+                'item': item_data.get('name', 'Unknown'),
+                'error': str(e)
+            })
+    
+    # Return results
+    response_data = {
+        'added': len(created_items),
+        'total': len(items_data),
+        'success': len(errors) == 0
+    }
+    
+    if errors:
+        response_data['errors'] = errors
+    
+    if created_items:
+        # Return basic item info
+        response_data['items'] = [
+            {
+                'id': item.id,
+                'name': item.product.name,
+                'quantity': item.quantity,
+                'unit': item.unit
+            } for item in created_items
+        ]
+    
+    status_code = status.HTTP_201_CREATED if created_items else status.HTTP_400_BAD_REQUEST
+    return Response(response_data, status=status_code)

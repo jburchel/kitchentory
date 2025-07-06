@@ -3,6 +3,7 @@
 ## Project Setup & Configuration
 
 ### Week 1: Foundation ✅
+
 - [x] Initialize Django project structure
   - [x] Create Django project named 'kitchentory'
   - [x] Set up proper project structure with apps
@@ -29,6 +30,7 @@
   - [x] Create local development documentation
 
 ### Week 2: Authentication & Base Structure ✅
+
 - [x] Implement Authentication System
   - [x] Integrate Django-Allauth
   - [x] Configure Supabase Auth integration
@@ -53,6 +55,7 @@
 ## Core Feature Development
 
 ### Week 3: Inventory Models & Basic CRUD ✅
+
 - [x] Create Inventory Data Models
   - [x] Design Product model (global product database)
   - [x] Create InventoryItem model (user's items)
@@ -75,6 +78,7 @@
   - [x] Create API documentation
 
 ### Week 4: Barcode Scanning & Product Search ✅
+
 - [x] Implement Barcode Scanning
   - [x] Research and select JavaScript barcode library
   - [x] Create camera permission flow
@@ -97,6 +101,7 @@
   - [x] Implement fuzzy search for typos
 
 ### Week 5: Recipe System Foundation ✅
+
 - [x] Create Recipe Data Models
   - [x] Design Recipe model with metadata
   - [x] Create RecipeIngredient model
@@ -119,6 +124,7 @@
   - [x] Create print-friendly view
 
 ### Week 6: Recipe Matching & Cooking Mode ✅
+
 - [x] Implement Matching Algorithm
   - [x] Create exact match logic
   - [x] Build "almost there" detection
@@ -142,6 +148,7 @@
   - [x] Add serving size adjustment
 
 ### Week 7: Shopping List System ✅
+
 - [x] Shopping List Models
   - [x] Create ShoppingList model
   - [x] Design ShoppingListItem model
@@ -164,23 +171,24 @@
   - [x] Create list sharing mechanism
 
 ### Week 8: Intelligence & Notifications ✅
+
 - [x] Expiration Tracking
   - [x] Implement expiration date logic
   - [x] Create notification preferences
-  - [x] Build expiration dashboard
-  - [x] Add batch expiration updates
+  - [ ] Build expiration dashboard
+  - [ ] Add batch expiration updates
   - [x] Create waste tracking
   
 - [x] Usage Analytics
   - [x] Track consumption patterns
   - [x] Build usage reports
   - [x] Create reorder predictions
-  - [x] Implement seasonal suggestions
+  - [ ] Implement seasonal suggestions
   - [x] Add budget tracking
   
 - [x] Notification System
   - [x] Set up email notifications
-  - [x] Implement push notifications (PWA)
+  - [ ] Implement push notifications (PWA)
   - [x] Create in-app notifications
   - [x] Build notification preferences
   - [x] Add digest emails
@@ -188,12 +196,13 @@
 ## Polish & Optimization
 
 ### Week 9: Mobile Optimization & PWA ✅
+
 - [x] Progressive Web App Setup
   - [x] Create service worker
   - [x] Implement offline functionality
   - [x] Build app manifest
   - [x] Add install prompts
-  - [x] Create app icons
+  - [ ] Create app icons
   
 - [x] Mobile UX Enhancements
   - [x] Optimize touch targets
@@ -207,9 +216,10 @@
   - [x] Add image optimization
   - [x] Create data caching strategy
   - [x] Optimize database queries
-  - [x] Add CDN configuration
+  - [ ] Add CDN configuration
 
 ### Week 10: Testing & Deployment ✅
+
 - [x] Comprehensive Testing
   - [x] Write unit tests for models
   - [x] Create integration tests for views
@@ -235,6 +245,7 @@
 ## Post-Launch Tasks
 
 ### Immediate Post-Launch
+
 - [ ] Monitor system performance
 - [ ] Set up user feedback collection
 - [ ] Create support ticket system
@@ -242,6 +253,7 @@
 - [ ] Set up analytics tracking
 
 ### Future Enhancements
+
 - [ ] Voice input integration
 - [ ] Receipt scanning with OCR
 - [ ] Meal planning calendar
@@ -254,6 +266,7 @@
 - [ ] Vendor price comparisons
 
 ## Technical Debt & Maintenance
+
 - [ ] Regular dependency updates
 - [ ] Security patch monitoring
 - [ ] Performance profiling

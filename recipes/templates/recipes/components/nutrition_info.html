@@ -52,36 +52,12 @@
     </div>
     
     {% if recipe.calories_per_serving and recipe.protein_grams and recipe.carb_grams and recipe.fat_grams %}
-        <!-- Macronutrient breakdown visualization -->
+        <!-- Simplified macronutrient display -->
         <div class="macro-breakdown mt-4">
-            <div class="text-sm font-medium text-gray-700 mb-2">Macronutrient Breakdown</div>
-            
-            {% with protein_calories=recipe.protein_grams|floatformat:1|mul:4 carb_calories=recipe.carb_grams|floatformat:1|mul:4 fat_calories=recipe.fat_grams|floatformat:1|mul:9 total_macro_calories=protein_calories|add:carb_calories|add:fat_calories %}
-                {% if total_macro_calories > 0 %}
-                    {% with protein_percent=protein_calories|mul:100|div:total_macro_calories carb_percent=carb_calories|mul:100|div:total_macro_calories fat_percent=fat_calories|mul:100|div:total_macro_calories %}
-                        <div class="flex h-3 bg-gray-200 rounded-full overflow-hidden mb-2">
-                            <div class="bg-red-400" style="width: {{ protein_percent|floatformat:1 }}%"></div>
-                            <div class="bg-blue-400" style="width: {{ carb_percent|floatformat:1 }}%"></div>
-                            <div class="bg-yellow-400" style="width: {{ fat_percent|floatformat:1 }}%"></div>
-                        </div>
-                        
-                        <div class="macro-legend flex justify-between text-xs text-gray-600">
-                            <span class="flex items-center">
-                                <div class="w-2 h-2 bg-red-400 rounded-full mr-1"></div>
-                                Protein {{ protein_percent|floatformat:0 }}%
-                            </span>
-                            <span class="flex items-center">
-                                <div class="w-2 h-2 bg-blue-400 rounded-full mr-1"></div>
-                                Carbs {{ carb_percent|floatformat:0 }}%
-                            </span>
-                            <span class="flex items-center">
-                                <div class="w-2 h-2 bg-yellow-400 rounded-full mr-1"></div>
-                                Fat {{ fat_percent|floatformat:0 }}%
-                            </span>
-                        </div>
-                    {% endwith %}
-                {% endif %}
-            {% endwith %}
+            <div class="text-sm font-medium text-gray-700 mb-2">Macronutrients</div>
+            <div class="text-xs text-gray-600">
+                Per serving: {{ recipe.protein_grams }}g protein, {{ recipe.carb_grams }}g carbs, {{ recipe.fat_grams }}g fat
+            </div>
         </div>
     {% endif %}
     

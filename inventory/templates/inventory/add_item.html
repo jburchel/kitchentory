@@ -112,12 +112,12 @@
                 <div class="grid grid-cols-2 gap-4">
                     <!-- Quantity -->
                     <div>
-                        <label for="{{ form.quantity.id_for_label }}" class="form-label">
+                        <label for="{{ form.current_quantity.id_for_label }}" class="form-label">
                             Quantity <span class="text-danger">*</span>
                         </label>
-                        {{ form.quantity }}
-                        {% if form.quantity.errors %}
-                        <p class="form-error">{{ form.quantity.errors.0 }}</p>
+                        {{ form.current_quantity }}
+                        {% if form.current_quantity.errors %}
+                        <p class="form-error">{{ form.current_quantity.errors.0 }}</p>
                         {% endif %}
                     </div>
                     

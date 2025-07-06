@@ -1,0 +1,409 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Integration Dashboard - Kitchentory{% endblock %}
+
+{% block extra_css %}
+<style>
+.integration-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.integration-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.integration-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.integration-card:hover {
+    border-color: #10b981;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.integration-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    color: #10b981;
+}
+
+.integration-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.integration-description {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 16px;
+}
+
+.integration-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+}
+
+.integration-features li {
+    font-size: 13px;
+    color: #059669;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.integration-features li::before {
+    content: '✓';
+    margin-right: 8px;
+    font-weight: bold;
+}
+
+.btn-integration {
+    width: 100%;
+    padding: 10px 16px;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+}
+
+.btn-integration:hover {
+    background: #059669;
+    color: white;
+    text-decoration: none;
+}
+
+.recent-imports {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: between;
+    align-items: center;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.import-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.import-table th,
+.import-table td {
+    padding: 12px 24px;
+    text-align: left;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.import-table th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+}
+
+.import-table td {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.status-completed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-processing {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-failed {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.empty-state {
+    padding: 48px 24px;
+    text-align: center;
+    color: #6b7280;
+}
+
+.empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    color: #d1d5db;
+}
+
+@media (max-width: 768px) {
+    .integration-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .import-table {
+        font-size: 12px;
+    }
+    
+    .import-table th,
+    .import-table td {
+        padding: 8px 16px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="integration-dashboard">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Integration Dashboard</h1>
+        <p class="text-gray-600">Import your inventory from multiple sources</p>
+    </div>
+
+    <!-- Integration Options -->
+    <div class="integration-grid">
+        <!-- CSV/Excel Import -->
+        <div class="integration-card" onclick="location.href='{% url 'integrations:csv_import' %}'">
+            <div class="integration-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+            </div>
+            <h3 class="integration-title">CSV/Excel Import</h3>
+            <p class="integration-description">
+                Upload a spreadsheet file to bulk import your inventory items. Perfect for migrating from other systems.
+            </p>
+            <ul class="integration-features">
+                <li>Support for CSV, Excel (.xlsx, .xls)</li>
+                <li>Auto-column mapping</li>
+                <li>Data validation and preview</li>
+                <li>Bulk processing up to 5,000 items</li>
+            </ul>
+            <a href="{% url 'integrations:csv_import' %}" class="btn-integration">
+                Import from File
+            </a>
+        </div>
+
+        <!-- Email Receipt Parsing -->
+        <div class="integration-card" onclick="location.href='{% url 'integrations:email_config' %}'">
+            <div class="integration-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+            </div>
+            <h3 class="integration-title">Email Receipts</h3>
+            <p class="integration-description">
+                Forward your grocery receipts to automatically extract and import items. Works with major retailers.
+            </p>
+            <ul class="integration-features">
+                <li>Supports Instacart, Amazon Fresh, Walmart</li>
+                <li>Auto-parsing with smart detection</li>
+                <li>Manual review for accuracy</li>
+                <li>Email webhook integration</li>
+            </ul>
+            <a href="{% url 'integrations:email_config' %}" class="btn-integration">
+                Setup Email Import
+            </a>
+        </div>
+
+        <!-- Browser Extension -->
+        <div class="integration-card">
+            <div class="integration-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9m0 9c-5 0-9-4-9-9s4-9 9-9" />
+                </svg>
+            </div>
+            <h3 class="integration-title">Browser Extension</h3>
+            <p class="integration-description">
+                Capture items automatically while shopping online. Real-time sync as you add items to your cart.
+            </p>
+            <ul class="integration-features">
+                <li>Auto-capture from shopping sites</li>
+                <li>Works with Chrome and Firefox</li>
+                <li>Secure token authentication</li>
+                <li>Real-time inventory sync</li>
+            </ul>
+            <a href="{% url 'integrations:browser_extension' %}" class="btn-integration">
+                Install Extension
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Import Jobs -->
+    <div class="recent-imports">
+        <div class="section-header">
+            <h2 class="section-title">Recent Import Jobs</h2>
+            <a href="{% url 'integrations:import_history' %}" class="text-green-600 hover:text-green-700 text-sm font-medium">
+                View All
+            </a>
+        </div>
+
+        {% if jobs %}
+            <table class="import-table">
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Status</th>
+                        <th>Success Rate</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in jobs %}
+                    <tr>
+                        <td>
+                            <div class="flex items-center">
+                                {% if job.source == 'csv_upload' %}
+                                    <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                {% elif job.source == 'email_receipt' %}
+                                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                {% elif job.source == 'browser_extension' %}
+                                    <svg class="w-4 h-4 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9m0 9c-5 0-9-4-9-9s4-9 9-9" />
+                                    </svg>
+                                {% endif %}
+                                {{ job.get_source_display }}
+                            </div>
+                        </td>
+                        <td>{{ job.created_at|date:"M d, Y g:i A" }}</td>
+                        <td>
+                            <span class="font-medium">{{ job.created_items|default:0 }}</span>
+                            {% if job.total_items %}
+                                / {{ job.total_items }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ job.status }}">
+                                {{ job.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if job.total_items and job.total_items > 0 %}
+                                {{ job.created_items|floatformat:0 }}{% widthratio job.created_items job.total_items 100 %}%
+                            {% else %}
+                                --
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'integrations:import_detail' job.id %}" 
+                               class="text-green-600 hover:text-green-700 text-sm font-medium">
+                                View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No import jobs yet</h3>
+                <p class="text-gray-600 mb-4">Start by importing your inventory using one of the methods above.</p>
+                <a href="{% url 'integrations:csv_import' %}" class="btn-integration inline-block w-auto px-6">
+                    Import Your First File
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Quick Stats -->
+    {% if jobs %}
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+        <div class="bg-white border border-gray-200 rounded-lg p-6 text-center">
+            <div class="text-2xl font-bold text-green-600">{{ jobs|length }}</div>
+            <div class="text-sm text-gray-600">Total Imports</div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-lg p-6 text-center">
+            <div class="text-2xl font-bold text-blue-600">
+                {% widthratio jobs.0.created_items 1 1 %}
+            </div>
+            <div class="text-sm text-gray-600">Items Imported</div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-lg p-6 text-center">
+            <div class="text-2xl font-bold text-purple-600">
+                {% for job in jobs %}
+                    {% if job.status == 'completed' %}1{% endif %}
+                {% endfor %}
+            </div>
+            <div class="text-sm text-gray-600">Successful</div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-lg p-6 text-center">
+            <div class="text-2xl font-bold text-gray-600">
+                {{ jobs.0.created_at|date:"M Y" }}
+            </div>
+            <div class="text-sm text-gray-600">Last Import</div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-refresh import status for processing jobs
+document.addEventListener('DOMContentLoaded', function() {
+    const processingJobs = document.querySelectorAll('.status-processing');
+    
+    if (processingJobs.length > 0) {
+        // Refresh page every 5 seconds to update status
+        setTimeout(() => {
+            window.location.reload();
+        }, 5000);
+    }
+});
+</script>
+{% endblock %}

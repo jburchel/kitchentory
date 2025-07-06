@@ -93,6 +93,17 @@
   .safe-area-inset-top {
     padding-top: env(safe-area-inset-top);
   }
+  
+  /* Desktop layout improvements */
+  .desktop-content {
+    @apply max-w-none;
+  }
+  
+  @media (min-width: 1024px) {
+    .desktop-content {
+      @apply max-w-7xl mx-auto;
+    }
+  }
 }
 
 /* Custom utilities */
