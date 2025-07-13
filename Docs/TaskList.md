@@ -276,6 +276,336 @@
 - [ ] User feedback implementation
 - [ ] Bug fix sprints
 
+## Monetization & App Store Deployment
+
+### Phase 1: Business Model & Subscription Tiers
+
+#### Tier Design & Planning
+- [ ] Research competitor pricing and features
+- [ ] Define Free tier limitations (compelling but limited)
+  - [ ] Max 50 inventory items
+  - [ ] Basic recipe matching (5 recipes/day)
+  - [ ] 1 shopping list
+  - [ ] No advanced analytics
+  - [ ] Community support only
+- [ ] Define Premium tier features ($4.99/month)
+  - [ ] Unlimited inventory items
+  - [ ] Advanced recipe matching with substitutions
+  - [ ] Unlimited shopping lists with smart suggestions
+  - [ ] Expiration alerts and waste tracking
+  - [ ] Basic analytics dashboard
+  - [ ] Email support
+- [ ] Define Pro tier features ($9.99/month)
+  - [ ] Everything in Premium
+  - [ ] AI-powered meal planning
+  - [ ] Nutrition tracking and goals
+  - [ ] Recipe import from any URL
+  - [ ] Advanced analytics and insights
+  - [ ] Household management (up to 6 members)
+  - [ ] Priority support and feature requests
+  - [ ] Export data functionality
+
+#### Database Schema for Subscriptions
+- [ ] Create Subscription model
+  - [ ] Link to User with subscription status
+  - [ ] Store Stripe customer and subscription IDs
+  - [ ] Track subscription start/end dates
+  - [ ] Store billing cycle and amount
+  - [ ] Add trial period tracking
+- [ ] Create SubscriptionPlan model
+  - [ ] Define plan tiers (free, premium, pro)
+  - [ ] Store pricing information
+  - [ ] Feature limits and permissions
+  - [ ] Plan descriptions and benefits
+- [ ] Create Usage Tracking models
+  - [ ] InventoryUsage (track item count per user)
+  - [ ] RecipeSearchUsage (track daily recipe searches)
+  - [ ] ShoppingListUsage (track list count)
+  - [ ] ExportUsage (track data exports)
+- [ ] Create BillingHistory model
+  - [ ] Store invoice records
+  - [ ] Payment success/failure tracking
+  - [ ] Refund tracking
+- [ ] Add subscription fields to User model
+  - [ ] current_plan (FK to SubscriptionPlan)
+  - [ ] subscription_status (active, canceled, past_due, etc.)
+  - [ ] trial_end_date
+  - [ ] subscription_end_date
+
+#### User Management & Permissions
+- [ ] Create subscription permission decorators
+- [ ] Implement subscription middleware for feature access
+- [ ] Add subscription status to user context
+- [ ] Create upgrade/downgrade logic
+- [ ] Implement graceful degradation for expired subscriptions
+
+### Phase 2: Stripe Integration
+
+#### Stripe Setup & Configuration
+- [ ] Install Stripe Python SDK
+- [ ] Create Stripe account and get API keys
+- [ ] Configure Stripe settings in Django
+- [ ] Set up Stripe webhook endpoints
+- [ ] Create Stripe products and prices for each tier
+- [ ] Configure Stripe customer portal
+
+#### Payment Processing Views
+- [ ] Create subscription checkout view
+  - [ ] Integrate Stripe Checkout Session
+  - [ ] Handle success/cancel redirects
+  - [ ] Store subscription data after successful payment
+- [ ] Create subscription management views
+  - [ ] View current subscription
+  - [ ] Upgrade/downgrade subscription
+  - [ ] Cancel subscription
+  - [ ] Reactivate subscription
+  - [ ] Update payment method
+- [ ] Create billing history view
+  - [ ] Display past invoices
+  - [ ] Download invoice PDFs
+  - [ ] View payment history
+
+#### Webhook Handlers
+- [ ] Set up Stripe webhook endpoint
+- [ ] Handle invoice.payment_succeeded
+- [ ] Handle invoice.payment_failed
+- [ ] Handle customer.subscription.created
+- [ ] Handle customer.subscription.updated
+- [ ] Handle customer.subscription.deleted
+- [ ] Handle customer.subscription.trial_will_end
+- [ ] Implement webhook signature verification
+- [ ] Add webhook event logging
+
+#### Billing & Invoice Management
+- [ ] Create invoice generation system
+- [ ] Implement automatic retry for failed payments
+- [ ] Set up dunning management (retry failed payments)
+- [ ] Create billing notification emails
+- [ ] Implement proration for plan changes
+- [ ] Add support for discount codes/coupons
+
+### Phase 3: Feature Restrictions & Usage Tracking
+
+#### Middleware & Decorators
+- [ ] Create SubscriptionMiddleware
+  - [ ] Check user subscription status on each request
+  - [ ] Redirect to upgrade page for restricted features
+  - [ ] Add subscription context to templates
+- [ ] Create subscription_required decorator
+  - [ ] Protect premium views
+  - [ ] Show upgrade prompts for free users
+- [ ] Create usage_limit decorator
+  - [ ] Track and enforce daily/monthly limits
+  - [ ] Show usage counters to users
+
+#### Feature Restrictions Implementation
+- [ ] Inventory Management
+  - [ ] Limit inventory items for free users (50 max)
+  - [ ] Add item count display in dashboard
+  - [ ] Block adding items when limit reached
+  - [ ] Show upgrade prompt on limit reached
+- [ ] Recipe System
+  - [ ] Limit recipe searches for free users (5/day)
+  - [ ] Track daily recipe search count
+  - [ ] Disable advanced matching for free users
+  - [ ] Limit recipe import to premium+ users
+- [ ] Shopping Lists
+  - [ ] Limit to 1 shopping list for free users
+  - [ ] Disable smart suggestions for free users
+  - [ ] Limit list sharing to premium+ users
+- [ ] Analytics & Reports
+  - [ ] Basic analytics for premium users
+  - [ ] Advanced analytics for pro users only
+  - [ ] Export functionality for pro users only
+- [ ] Household Management
+  - [ ] Limit household size for premium (3 members)
+  - [ ] Unlimited household for pro users
+
+#### Usage Tracking & Analytics
+- [ ] Create usage tracking service
+  - [ ] Track inventory item additions
+  - [ ] Track recipe searches and views
+  - [ ] Track shopping list usage
+  - [ ] Track feature usage patterns
+- [ ] Create subscription analytics dashboard
+  - [ ] Monthly recurring revenue (MRR)
+  - [ ] Churn rate and retention metrics
+  - [ ] Conversion funnel analysis
+  - [ ] Feature usage by subscription tier
+- [ ] Create user usage dashboard
+  - [ ] Show current usage vs limits
+  - [ ] Display subscription benefits
+  - [ ] Show usage trends and insights
+
+#### Upgrade Prompts & Paywalls
+- [ ] Create upgrade prompt component
+  - [ ] Show benefits of upgrading
+  - [ ] Include clear pricing information
+  - [ ] Add testimonials or social proof
+- [ ] Implement strategic paywall placement
+  - [ ] After hitting usage limits
+  - [ ] When accessing premium features
+  - [ ] In settings/profile areas
+  - [ ] During high-engagement moments
+- [ ] Create subscription comparison page
+  - [ ] Feature comparison table
+  - [ ] Clear call-to-action buttons
+  - [ ] FAQ section for billing
+
+### Phase 4: Mobile App Store Preparation
+
+#### PWA Enhancement for Mobile
+- [ ] Enhance service worker for offline functionality
+- [ ] Improve app manifest with proper icons
+- [ ] Add app install prompts
+- [ ] Optimize for mobile performance
+- [ ] Add haptic feedback for mobile interactions
+- [ ] Implement mobile-specific navigation patterns
+
+#### Native App Wrapper (Capacitor.js)
+- [ ] Install and configure Capacitor
+- [ ] Create iOS app wrapper
+  - [ ] Configure iOS project settings
+  - [ ] Add iOS-specific permissions
+  - [ ] Test on iOS simulator and devices
+- [ ] Create Android app wrapper
+  - [ ] Configure Android project settings
+  - [ ] Add Android-specific permissions
+  - [ ] Test on Android emulator and devices
+- [ ] Implement native features
+  - [ ] Camera access for barcode scanning
+  - [ ] Push notifications
+  - [ ] App shortcuts and widgets
+  - [ ] Native file system access
+
+#### App Store Assets & Preparation
+- [ ] Design app icons for all required sizes
+  - [ ] iOS: 1024x1024, 180x180, 120x120, 87x87, 80x80, 58x58, 40x40, 29x29
+  - [ ] Android: 512x512, 192x192, 144x144, 96x96, 72x72, 48x48, 36x36
+- [ ] Create app screenshots for all device sizes
+  - [ ] iPhone 6.7", 6.5", 5.5", iPad Pro 12.9", iPad Pro 11"
+  - [ ] Android phone, Android tablet
+- [ ] Write app store descriptions
+  - [ ] Compelling app title and subtitle
+  - [ ] Feature-rich description
+  - [ ] Keyword optimization for ASO
+  - [ ] What's new section
+- [ ] Create marketing materials
+  - [ ] Feature graphics for Google Play
+  - [ ] App preview videos
+  - [ ] Press kit with images and descriptions
+
+#### Developer Account Setup
+- [ ] Apple Developer Program
+  - [ ] Enroll in Apple Developer Program ($99/year)
+  - [ ] Create app identifier and certificates
+  - [ ] Set up provisioning profiles
+  - [ ] Configure App Store Connect
+- [ ] Google Play Console
+  - [ ] Register for Google Play Console ($25 one-time)
+  - [ ] Create app listing
+  - [ ] Set up release tracks (internal, alpha, beta, production)
+  - [ ] Configure content rating and pricing
+
+#### In-App Purchase Integration
+- [ ] Configure Stripe for mobile payments
+- [ ] Set up App Store Connect in-app purchases
+- [ ] Configure Google Play Billing
+- [ ] Implement purchase restoration
+- [ ] Add subscription management in mobile apps
+- [ ] Test purchase flows on both platforms
+
+#### App Store Submission Process
+- [ ] iOS App Store
+  - [ ] Prepare app for review
+  - [ ] Submit for App Store Review
+  - [ ] Respond to review feedback
+  - [ ] Plan release strategy
+- [ ] Google Play Store
+  - [ ] Upload app bundle to Play Console
+  - [ ] Complete content rating questionnaire
+  - [ ] Submit for review
+  - [ ] Plan gradual rollout strategy
+
+### Phase 5: Testing & Production Deployment
+
+#### Comprehensive Payment Testing
+- [ ] Set up Stripe test environment
+- [ ] Test all subscription flows
+  - [ ] New subscription creation
+  - [ ] Plan upgrades and downgrades
+  - [ ] Subscription cancellation
+  - [ ] Payment method updates
+- [ ] Test webhook reliability
+  - [ ] Use Stripe webhook testing tools
+  - [ ] Test failure scenarios
+  - [ ] Verify data consistency
+- [ ] Test mobile payment flows
+  - [ ] In-app purchases on iOS
+  - [ ] Google Play Billing on Android
+  - [ ] Subscription restoration
+- [ ] Load testing for payment endpoints
+- [ ] Security testing for payment data
+
+#### Subscription Analytics & Monitoring
+- [ ] Set up subscription metrics tracking
+  - [ ] Integrate with analytics platforms (Mixpanel, Amplitude)
+  - [ ] Track conversion funnel metrics
+  - [ ] Monitor churn and retention rates
+- [ ] Create subscription health dashboard
+  - [ ] Real-time subscription metrics
+  - [ ] Payment failure alerts
+  - [ ] Usage anomaly detection
+- [ ] Set up automated reporting
+  - [ ] Daily subscription reports
+  - [ ] Monthly revenue reports
+  - [ ] Customer lifecycle emails
+
+#### Customer Support Systems
+- [ ] Create subscription FAQ section
+- [ ] Set up customer support ticketing
+  - [ ] Integrate with help desk software
+  - [ ] Create subscription-specific support workflows
+  - [ ] Train support team on billing issues
+- [ ] Implement self-service options
+  - [ ] Account management portal
+  - [ ] Billing history and downloads
+  - [ ] Subscription change options
+- [ ] Create refund and cancellation policies
+- [ ] Set up churn reduction workflows
+
+#### Production Deployment & Launch
+- [ ] Deploy subscription features to staging
+- [ ] Perform end-to-end testing in staging
+- [ ] Deploy to production with feature flags
+- [ ] Gradual rollout to user segments
+- [ ] Monitor system performance and errors
+- [ ] Launch marketing campaigns
+- [ ] Collect user feedback and iterate
+
+### Phase 6: Post-Launch Optimization
+
+#### Conversion Optimization
+- [ ] A/B test pricing strategies
+- [ ] Optimize upgrade flow conversion
+- [ ] Test different paywall placements
+- [ ] Improve subscription onboarding
+- [ ] Analyze and reduce friction points
+
+#### Customer Success & Retention
+- [ ] Implement user onboarding sequences
+- [ ] Create value demonstration campaigns
+- [ ] Set up win-back campaigns for churned users
+- [ ] Develop customer success metrics
+- [ ] Regular customer interviews and feedback
+
+#### Revenue Growth Strategies
+- [ ] Implement referral program
+- [ ] Create annual subscription discounts
+- [ ] Develop enterprise/family plans
+- [ ] Add premium add-ons and features
+- [ ] Explore partnership opportunities
+
 ## Success Criteria Checkpoints
 
 - [x] Week 2: Successful user registration and login ✅
@@ -283,3 +613,11 @@
 - [x] Week 6: Recipe matching returning relevant results ✅
 - [x] Week 8: Complete user flow from inventory to shopping ✅
 - [x] Week 10: Passing all tests, <3s page loads, successful deployment ✅
+
+### Monetization Milestones
+- [ ] Phase 1: Subscription tiers and database models implemented
+- [ ] Phase 2: Stripe integration and payment flows working
+- [ ] Phase 3: Feature restrictions and usage tracking active
+- [ ] Phase 4: Mobile apps submitted to app stores
+- [ ] Phase 5: Payment system tested and deployed to production
+- [ ] Post-Launch: First paying customers and revenue tracking
