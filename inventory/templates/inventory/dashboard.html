@@ -4,114 +4,160 @@
 {% block title %}Inventory Dashboard - Kitchentory{% endblock %}
 {% block page_title %}Inventory{% endblock %}
 
+{% block extra_css %}
+<link href="{% static 'css/design-system.css' %}" rel="stylesheet">
+<link href="{% static 'css/enhanced-components.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
-<div class="px-4 py-6 sm:px-6 lg:px-8">
-    <!-- Quick Actions -->
-    <div class="mb-6 flex flex-wrap gap-3">
-        <a href="{% url 'inventory:add' %}" class="btn btn-primary">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Add Item
-        </a>
-        <a href="{% url 'inventory:list' %}" class="btn btn-outline">
-            View All Items
-        </a>
-        <a href="{% url 'inventory:storage_locations' %}" class="btn btn-outline">
-            Manage Locations
-        </a>
-    </div>
-    
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div class="card">
-            <div class="card-body">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 p-3 bg-primary-light rounded-lg">
-                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm text-gray-600">Total Items</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ stats.total_items }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="card-body">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 p-3 bg-warning rounded-lg bg-opacity-10">
-                        <svg class="w-6 h-6 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm text-gray-600">Expiring Soon</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ stats.expiring_soon }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="card-body">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 p-3 bg-danger rounded-lg bg-opacity-10">
-                        <svg class="w-6 h-6 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm text-gray-600">Expired</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ stats.expired }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="card-body">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 p-3 bg-info rounded-lg bg-opacity-10">
-                        <svg class="w-6 h-6 text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm text-gray-600">Categories</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ stats.categories|length }}</p>
-                    </div>
-                </div>
-            </div>
+<div class="px-4 py-6 sm:px-6 lg:px-8 theme-transition">
+    <!-- Enhanced Quick Actions -->
+    <div class="quick-actions-modern mb-8">
+        <h3 class="quick-actions-title">Inventory Actions</h3>
+        <div class="quick-actions-grid">
+            <a href="{% url 'inventory:add' %}" class="quick-action-btn interactive-element">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <span class="text-sm font-medium">Add Item</span>
+            </a>
+            <a href="{% url 'inventory:list' %}" class="quick-action-btn interactive-element">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                </svg>
+                <span class="text-sm font-medium">View All</span>
+            </a>
+            <a href="{% url 'inventory:storage_locations' %}" class="quick-action-btn interactive-element">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+                <span class="text-sm font-medium">Locations</span>
+            </a>
+            <a href="{% url 'inventory:add' %}?scanner=true" class="quick-action-btn interactive-element">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                </svg>
+                <span class="text-sm font-medium">Scan Item</span>
+            </a>
         </div>
     </div>
     
-    <!-- Expiring Items -->
+    <!-- Enhanced Stats Grid -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div class="stats-card-modern interactive-element">
+            <div class="stats-card-icon stats-card-icon--primary">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+            </div>
+            <div class="relative z-1">
+                <p class="text-muted text-sm font-medium mb-1">Total Items</p>
+                <p class="text-display text-3xl">{{ stats.total_items|default:0 }}</p>
+                <p class="text-muted text-xs mt-2">
+                    <span class="inline-flex items-center">
+                        <span class="status-indicator status-indicator--fresh"></span>
+                        In inventory
+                    </span>
+                </p>
+            </div>
+        </div>
+        
+        <div class="stats-card-modern interactive-element">
+            <div class="stats-card-icon stats-card-icon--warning">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div class="relative z-1">
+                <p class="text-muted text-sm font-medium mb-1">Expiring Soon</p>
+                <p class="text-display text-3xl">{{ stats.expiring_soon|default:0 }}</p>
+                <p class="text-muted text-xs mt-2">
+                    <span class="inline-flex items-center">
+                        <span class="status-indicator {% if stats.expiring_soon > 0 %}status-indicator--expiring{% else %}status-indicator--fresh{% endif %}"></span>
+                        {% if stats.expiring_soon > 0 %}Use soon{% else %}All fresh{% endif %}
+                    </span>
+                </p>
+            </div>
+        </div>
+        
+        <div class="stats-card-modern interactive-element">
+            <div class="stats-card-icon stats-card-icon--error">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <div class="relative z-1">
+                <p class="text-muted text-sm font-medium mb-1">Expired</p>
+                <p class="text-display text-3xl">{{ stats.expired|default:0 }}</p>
+                <p class="text-muted text-xs mt-2">
+                    <span class="inline-flex items-center">
+                        <span class="status-indicator {% if stats.expired > 0 %}status-indicator--expired{% else %}status-indicator--fresh{% endif %}"></span>
+                        {% if stats.expired > 0 %}Check items{% else %}None expired{% endif %}
+                    </span>
+                </p>
+            </div>
+        </div>
+        
+        <div class="stats-card-modern interactive-element">
+            <div class="stats-card-icon stats-card-icon--success">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                </svg>
+            </div>
+            <div class="relative z-1">
+                <p class="text-muted text-sm font-medium mb-1">Categories</p>
+                <p class="text-display text-3xl">{{ stats.categories|length|default:0 }}</p>
+                <p class="text-muted text-xs mt-2">
+                    <span class="inline-flex items-center">
+                        <span class="status-indicator status-indicator--fresh"></span>
+                        Organized
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Expiring Items Section with Enhanced Design -->
     {% if expiring_items %}
-    <div class="mb-8">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Items Expiring Soon</h2>
-        <div class="grid gap-3">
+    <div class="mb-12">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-display text-2xl mb-2">Items Expiring Soon ⚠️</h2>
+                <p class="text-body">Items that need your immediate attention</p>
+            </div>
+            <a href="{% url 'inventory:list' %}?filter=expiring" class="btn-modern-secondary">
+                View All Expiring
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+        </div>
+        
+        <div class="grid gap-4">
             {% for item in expiring_items %}
-            <div class="card {% if item.is_expired %}border-danger{% else %}border-warning{% endif %}">
-                <div class="card-body">
+            <div class="inventory-card-modern {% if item.is_expired %}expired{% else %}expiring{% endif %} interactive-element">
+                <div class="p-6">
                     <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="font-medium">{{ item.product.name }}</h3>
-                            <p class="text-sm text-gray-600">
+                        <div class="flex-1">
+                            <h3 class="text-display font-semibold mb-1">{{ item.product.name }}</h3>
+                            <p class="text-body text-sm mb-2">
                                 {{ item.quantity }} {{ item.get_unit_display }}
                                 {% if item.location %} • {{ item.location.name }}{% endif %}
                             </p>
+                            <div class="flex items-center">
+                                {% if item.is_expired %}
+                                    <span class="category-badge" style="background: var(--color-expired); color: white;">
+                                        Expired
+                                    </span>
+                                {% else %}
+                                    <span class="category-badge" style="background: var(--color-expiring); color: white;">
+                                        {{ item.days_until_expiration }} days left
+                                    </span>
+                                {% endif %}
+                            </div>
                         </div>
                         <div class="text-right">
-                            {% if item.is_expired %}
-                                <span class="text-danger font-medium">Expired</span>
-                            {% else %}
-                                <span class="text-warning font-medium">{{ item.days_until_expiration }} days</span>
-                            {% endif %}
-                            <p class="text-sm text-gray-600">{{ item.expiration_date }}</p>
+                            <p class="text-muted text-sm">{{ item.expiration_date|date:"M d, Y" }}</p>
                         </div>
                     </div>
                 </div>
@@ -121,24 +167,41 @@
     </div>
     {% endif %}
     
-    <!-- Recent Items -->
+    <!-- Recent Items Section with Enhanced Design -->
     {% if recent_items %}
-    <div>
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Recently Added</h2>
-        <div class="grid gap-3">
+    <div class="mb-12">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-display text-2xl mb-2">Recently Added 📦</h2>
+                <p class="text-body">Your latest inventory additions</p>
+            </div>
+            <a href="{% url 'inventory:list' %}?sort=recent" class="btn-modern-secondary">
+                View All Items
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+        </div>
+        
+        <div class="grid gap-4">
             {% for item in recent_items %}
-            <a href="{% url 'inventory:detail' item.id %}" class="card hover:shadow-md transition-shadow">
-                <div class="card-body">
+            <a href="{% url 'inventory:detail' item.id %}" class="inventory-card-modern interactive-element">
+                <div class="p-6">
                     <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="font-medium">{{ item.product.name }}</h3>
-                            <p class="text-sm text-gray-600">
+                        <div class="flex-1">
+                            <h3 class="text-display font-semibold mb-1">{{ item.product.name }}</h3>
+                            <p class="text-body text-sm mb-2">
                                 {{ item.quantity }} {{ item.get_unit_display }}
                                 {% if item.location %} • {{ item.location.name }}{% endif %}
                             </p>
+                            <div class="flex items-center">
+                                <span class="category-badge category-badge--fresh">
+                                    Fresh addition
+                                </span>
+                            </div>
                         </div>
-                        <div class="text-sm text-gray-500">
-                            {{ item.created_at|timesince }} ago
+                        <div class="text-right">
+                            <p class="text-muted text-sm">{{ item.created_at|timesince }} ago</p>
                         </div>
                     </div>
                 </div>
@@ -147,13 +210,21 @@
         </div>
     </div>
     {% else %}
-    <div class="text-center py-12">
-        <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-        </svg>
-        <p class="text-gray-600 mb-4">Your inventory is empty</p>
-        <a href="{% url 'inventory:add' %}" class="btn btn-primary">Add Your First Item</a>
+    <div class="empty-state-modern">
+        <div class="empty-state-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            </svg>
+        </div>
+        <h3 class="empty-state-title">Your inventory is empty! 📦</h3>
+        <p class="empty-state-description">Start by adding your first item to track what's in your kitchen.</p>
+        <a href="{% url 'inventory:add' %}" class="btn-modern-primary">Add Your First Item</a>
     </div>
     {% endif %}
 </div>
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'js/theme-manager.js' %}"></script>
+{% endblock %}
 {% endblock %}

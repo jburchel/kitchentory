@@ -62,28 +62,28 @@
 {% block content %}
 <div class="recipe-detail-container max-w-4xl mx-auto px-4 py-6">
     <!-- Breadcrumb -->
-    <nav class="mb-6 text-sm text-gray-500">
+    <nav class="mb-6 text-sm text-gray-500 dark:text-gray-400">
         <a href="{% url 'recipes:list' %}" class="hover:text-blue-600">Recipes</a>
         {% if recipe.category %}
             <span class="mx-2">›</span>
-            <a href="{% url 'recipes:category' recipe.category.slug %}" class="hover:text-blue-600">{{ recipe.category.name }}</a>
+            <a href="{% url 'recipes:list' %}?category={{ recipe.category.id }}" class="hover:text-blue-600">{{ recipe.category.name }}</a>
         {% endif %}
         <span class="mx-2">›</span>
-        <span class="text-gray-900">{{ recipe.title }}</span>
+        <span class="text-gray-900 dark:text-gray-100">{{ recipe.title }}</span>
     </nav>
 
     <!-- Recipe Header -->
     <div class="recipe-header mb-8">
         <div class="flex items-start justify-between mb-4">
             <div class="flex-1">
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ recipe.title }}</h1>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">{{ recipe.title }}</h1>
                 
                 {% if recipe.description %}
-                    <p class="text-lg text-gray-600 mb-4">{{ recipe.description }}</p>
+                    <p class="text-lg text-gray-600 dark:text-gray-300 mb-4">{{ recipe.description }}</p>
                 {% endif %}
                 
                 <!-- Recipe meta info -->
-                <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-4">
+                <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
                     {% if recipe.author %}
                         <div class="flex items-center">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,7 +119,7 @@
             <div class="recipe-actions flex flex-col gap-2 ml-6">
                 <button onclick="toggleRecipeFavorite(this)" 
                         data-recipe-id="{{ recipe.id }}"
-                        class="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        class="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                     </svg>
@@ -143,7 +143,7 @@
                 </button>
                 
                 <button onclick="window.print()"
-                        class="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        class="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                     </svg>
@@ -153,27 +153,27 @@
         </div>
         
         <!-- Recipe stats -->
-        <div class="recipe-stats grid grid-cols-2 md:grid-cols-4 gap-4 p-6 bg-gray-50 rounded-lg">
+        <div class="recipe-stats grid grid-cols-2 md:grid-cols-4 gap-4 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
             <div class="text-center">
-                <div class="text-2xl font-bold text-gray-900">{{ recipe.prep_time|default:"—" }}</div>
-                <div class="text-sm text-gray-500">Prep Time{% if recipe.prep_time %} (min){% endif %}</div>
+                <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ recipe.prep_time|default:"—" }}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">Prep Time{% if recipe.prep_time %} (min){% endif %}</div>
             </div>
             <div class="text-center">
-                <div class="text-2xl font-bold text-gray-900">{{ recipe.cook_time|default:"—" }}</div>
-                <div class="text-sm text-gray-500">Cook Time{% if recipe.cook_time %} (min){% endif %}</div>
+                <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ recipe.cook_time|default:"—" }}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">Cook Time{% if recipe.cook_time %} (min){% endif %}</div>
             </div>
             <div class="text-center">
-                <div class="text-2xl font-bold text-gray-900">{{ recipe.servings }}</div>
-                <div class="text-sm text-gray-500">{{ recipe.get_serving_unit_display }}</div>
+                <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ recipe.servings }}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">{{ recipe.get_serving_unit_display }}</div>
             </div>
             <div class="text-center">
-                <div class="text-2xl font-bold text-gray-900 
-                    {% if recipe.difficulty == 'easy' %}text-green-600
-                    {% elif recipe.difficulty == 'medium' %}text-yellow-600
-                    {% else %}text-red-600{% endif %}">
+                <div class="text-2xl font-bold text-gray-900 dark:text-gray-100
+                    {% if recipe.difficulty == 'easy' %}text-green-600 dark:text-green-400
+                    {% elif recipe.difficulty == 'medium' %}text-yellow-600 dark:text-yellow-400
+                    {% else %}text-red-600 dark:text-red-400{% endif %}">
                     {{ recipe.get_difficulty_display }}
                 </div>
-                <div class="text-sm text-gray-500">Difficulty</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">Difficulty</div>
             </div>
         </div>
         
@@ -217,7 +217,7 @@
                     
                     <!-- Recipe tags -->
                     {% for tag in recipe.tags.all %}
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                             {{ tag.name }}
                         </span>
                     {% endfor %}
@@ -256,8 +256,8 @@
             
             <!-- Rating and Reviews -->
             {% if recipe.rating_average > 0 %}
-                <div class="recipe-ratings bg-white border rounded-lg p-4 mb-6">
-                    <h3 class="text-lg font-semibold mb-3">Reviews</h3>
+                <div class="recipe-ratings bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-6">
+                    <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Reviews</h3>
                     
                     <div class="flex items-center mb-4">
                         <div class="flex items-center mr-4">
@@ -268,11 +268,11 @@
                                 </svg>
                             {% endfor %}
                         </div>
-                        <span class="text-lg font-semibold">{{ recipe.rating_average }}</span>
-                        <span class="text-gray-500 ml-2">({{ recipe.rating_count }} review{{ recipe.rating_count|pluralize }})</span>
+                        <span class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ recipe.rating_average }}</span>
+                        <span class="text-gray-500 dark:text-gray-400 ml-2">({{ recipe.rating_count }} review{{ recipe.rating_count|pluralize }})</span>
                     </div>
                     
-                    <a href="#reviews" class="text-blue-600 hover:text-blue-800 text-sm">View all reviews</a>
+                    <a href="#reviews" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm">View all reviews</a>
                 </div>
             {% endif %}
         </div>
@@ -282,16 +282,16 @@
             <!-- Ingredients -->
             <div class="recipe-ingredients mb-8">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-2xl font-bold text-gray-900">Ingredients</h2>
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Ingredients</h2>
                     <div class="serving-adjuster flex items-center space-x-2">
-                        <span class="text-sm text-gray-500">Servings:</span>
-                        <button onclick="adjustServings(-1)" class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Servings:</span>
+                        <button onclick="adjustServings(-1)" class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
                             </svg>
                         </button>
-                        <span id="serving-count" class="w-8 text-center font-semibold">{{ recipe.servings }}</span>
-                        <button onclick="adjustServings(1)" class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50">
+                        <span id="serving-count" class="w-8 text-center font-semibold text-gray-900 dark:text-gray-100">{{ recipe.servings }}</span>
+                        <button onclick="adjustServings(1)" class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                             </svg>
@@ -303,33 +303,33 @@
                     {% regroup recipe.ingredients.all by group as ingredient_groups %}
                     {% for group in ingredient_groups %}
                         {% if group.grouper %}
-                            <h4 class="font-semibold text-gray-900 mt-6 mb-3 border-b border-gray-200 pb-2">{{ group.grouper }}</h4>
+                            <h4 class="font-semibold text-gray-900 dark:text-gray-100 mt-6 mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">{{ group.grouper }}</h4>
                         {% endif %}
                         
                         {% for ingredient in group.list %}
-                            <div class="ingredient-item flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                            <div class="ingredient-item flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                  data-ingredient-id="{{ ingredient.id }}"
                                  data-quantity="{{ ingredient.quantity|default:0 }}"
                                  data-unit="{{ ingredient.unit }}">
                                 <input type="checkbox" 
                                        class="ingredient-checkbox mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                                 <div class="flex-1">
-                                    <div class="ingredient-quantity-name font-medium text-gray-900">
+                                    <div class="ingredient-quantity-name font-medium text-gray-900 dark:text-gray-100">
                                         {{ ingredient.full_description }}
                                     </div>
                                     {% if ingredient.notes %}
-                                        <div class="text-sm text-gray-500 mt-1">{{ ingredient.notes }}</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ ingredient.notes }}</div>
                                     {% endif %}
                                     {% if ingredient.is_optional %}
-                                        <span class="inline-block mt-1 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Optional</span>
+                                        <span class="inline-block mt-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded">Optional</span>
                                     {% endif %}
                                     {% if ingredient.is_garnish %}
-                                        <span class="inline-block mt-1 text-xs bg-green-100 text-green-600 px-2 py-1 rounded">Garnish</span>
+                                        <span class="inline-block mt-1 text-xs bg-green-100 dark:bg-green-800 text-green-600 dark:text-green-300 px-2 py-1 rounded">Garnish</span>
                                     {% endif %}
                                 </div>
                                 {% if ingredient.product %}
                                     <button onclick="addIngredientToShoppingList('{{ ingredient.product.id }}')"
-                                            class="text-blue-600 hover:text-blue-800 text-sm">
+                                            class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm">
                                         + Add
                                     </button>
                                 {% endif %}
@@ -341,7 +341,7 @@
             
             <!-- Instructions -->
             <div class="recipe-instructions">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">Instructions</h2>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Instructions</h2>
                 
                 <div class="instructions-list space-y-6">
                     {% for step in recipe.steps.all %}
@@ -353,16 +353,16 @@
                                 
                                 <div class="step-content flex-1">
                                     {% if step.title %}
-                                        <h4 class="font-semibold text-gray-900 mb-2">{{ step.title }}</h4>
+                                        <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-2">{{ step.title }}</h4>
                                     {% endif %}
                                     
-                                    <div class="step-instruction text-gray-700 leading-relaxed mb-3">
+                                    <div class="step-instruction text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
                                         {{ step.instruction|linebreaks }}
                                     </div>
                                     
                                     <!-- Step metadata -->
                                     {% if step.time_minutes or step.temperature or step.equipment_needed %}
-                                        <div class="step-meta flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
+                                        <div class="step-meta flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400 mb-3">
                                             {% if step.time_minutes %}
                                                 <div class="flex items-center">
                                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -394,14 +394,14 @@
                                     
                                     <!-- Step tips -->
                                     {% if step.tips %}
-                                        <div class="step-tips bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-3">
+                                        <div class="step-tips bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-3 mb-3">
                                             <div class="flex items-start">
                                                 <svg class="w-5 h-5 text-yellow-400 mt-0.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                                                 </svg>
                                                 <div>
-                                                    <p class="text-sm font-medium text-yellow-800">Tip</p>
-                                                    <p class="text-sm text-yellow-700 mt-1">{{ step.tips }}</p>
+                                                    <p class="text-sm font-medium text-yellow-800 dark:text-yellow-300">Tip</p>
+                                                    <p class="text-sm text-yellow-700 dark:text-yellow-200 mt-1">{{ step.tips }}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -418,7 +418,7 @@
                                     
                                     <!-- Mark as completed -->
                                     <div class="step-completion mt-3">
-                                        <label class="flex items-center text-sm text-gray-600">
+                                        <label class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                                             <input type="checkbox" 
                                                    class="step-checkbox mr-2 h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
                                             Mark as completed

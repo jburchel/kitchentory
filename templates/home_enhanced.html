@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home - Kitchentory{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/design-system.css' %}" rel="stylesheet">
+<link href="{% static 'css/enhanced-components.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="desktop-content px-4 py-6 sm:px-6 lg:px-8 theme-transition">
+    {% if user.is_authenticated %}
+    
+    <!-- Welcome Section with Modern Design -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-display text-3xl sm:text-4xl mb-2">
+                    Welcome back, {{ user.first_name|default:user.username }}! 👋
+                </h1>
+                <p class="text-body text-lg">Here's what's happening in your kitchen today.</p>
+            </div>
+            <button data-theme-toggle class="header-action-btn" 
+                    x-data="{ theme: $store.theme.current }"
+                    @click="$store.theme.toggle(); theme = $store.theme.current">
+                <span class="theme-icon" 
+                      x-html="theme === 'dark' ? 
+                      `<svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z'></path></svg>` :
+                      `<svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z'></path></svg>`">
+                </span>
+                <span class="sr-only">Toggle theme</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Actions Card -->
+    <div class="quick-actions-modern mb-8">
+        <h3 class="quick-actions-title">Quick Actions</h3>
+        <div class="quick-actions-grid">
+            <a href="{% url 'inventory:add' %}" class="quick-action-btn interactive-element">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <span class="text-sm font-medium">Add Item</span>
+            </a>
+            <a href="{% url 'inventory:add' %}?scanner=true" class="quick-action-btn interactive-element">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                </svg>
+                <span class="text-sm font-medium">Scan Barcode</span>
+            </a>
+            <a href="{% url 'recipes:list' %}" class="quick-action-btn interactive-element">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                <span class="text-sm font-medium">Find Recipes</span>
+            </a>
+            <a href="{% url 'shopping:dashboard' %}" class="quick-action-btn interactive-element">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                </svg>
+                <span class="text-sm font-medium">Shopping List</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Enhanced Stats Grid -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div class="stats-card-modern interactive-element">
+            <div class="stats-card-icon stats-card-icon--primary">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+            </div>
+            <div class="relative z-1">
+                <p class="text-muted text-sm font-medium mb-1">Total Items</p>
+                <p class="text-display text-3xl">{{ stats.total_items|default:0 }}</p>
+                <p class="text-muted text-xs mt-2">
+                    <span class="inline-flex items-center">
+                        <span class="status-indicator status-indicator--fresh"></span>
+                        Well stocked
+                    </span>
+                </p>
+            </div>
+        </div>
+        
+        <div class="stats-card-modern interactive-element">
+            <div class="stats-card-icon stats-card-icon--warning">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div class="relative z-1">
+                <p class="text-muted text-sm font-medium mb-1">Expiring Soon</p>
+                <p class="text-display text-3xl">{{ stats.expiring_soon|default:0 }}</p>
+                <p class="text-muted text-xs mt-2">
+                    <span class="inline-flex items-center">
+                        <span class="status-indicator {% if stats.expiring_soon > 0 %}status-indicator--expiring{% else %}status-indicator--fresh{% endif %}"></span>
+                        {% if stats.expiring_soon > 0 %}Use soon{% else %}All fresh{% endif %}
+                    </span>
+                </p>
+            </div>
+        </div>
+        
+        <div class="stats-card-modern interactive-element">
+            <div class="stats-card-icon stats-card-icon--success">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+            </div>
+            <div class="relative z-1">
+                <p class="text-muted text-sm font-medium mb-1">Recipe Matches</p>
+                <p class="text-display text-3xl">{{ stats.recipe_matches|default:12 }}</p>
+                <p class="text-muted text-xs mt-2">
+                    <span class="inline-flex items-center">
+                        <span class="status-indicator status-indicator--fresh"></span>
+                        Ready to cook
+                    </span>
+                </p>
+            </div>
+        </div>
+        
+        <div class="stats-card-modern interactive-element">
+            <div class="stats-card-icon stats-card-icon--primary">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                </svg>
+            </div>
+            <div class="relative z-1">
+                <p class="text-muted text-sm font-medium mb-1">Shopping Items</p>
+                <p class="text-display text-3xl">{{ stats.shopping_items|default:5 }}</p>
+                <p class="text-muted text-xs mt-2">
+                    <span class="inline-flex items-center">
+                        <span class="status-indicator status-indicator--fresh"></span>
+                        On your list
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Expiring Soon Section with Enhanced Design -->
+    <div class="mb-12">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-display text-2xl mb-2">Expiring Soon 🕐</h2>
+                <p class="text-body">Items that need your attention</p>
+            </div>
+            <a href="{% url 'inventory:list' %}" class="btn-modern-secondary">
+                View All Items
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+        </div>
+        
+        {% if expiring_items %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for item in expiring_items %}
+                    <div class="inventory-card-modern expiring interactive-element">
+                        <div class="p-6">
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-shrink-0">
+                                    {% if item.product.image %}
+                                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" 
+                                             class="w-16 h-16 rounded-lg object-cover">
+                                    {% else %}
+                                        <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
+                                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                            </svg>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-display font-semibold truncate mb-1">{{ item.product.name }}</h3>
+                                    <p class="text-body text-sm mb-2">{{ item.current_quantity }} {{ item.unit }}</p>
+                                    <div class="flex items-center">
+                                        <span class="category-badge category-badge--pantry">
+                                            Expires {{ item.expiration_date|date:"M d" }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state-modern">
+                <div class="empty-state-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="empty-state-title">All items are fresh! 🎉</h3>
+                <p class="empty-state-description">No items are expiring soon. Items nearing expiration will appear here.</p>
+                <a href="{% url 'inventory:add' %}" class="btn-modern-primary">Add More Items</a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Recipe Suggestions with Enhanced Design -->
+    <div class="mb-12">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-display text-2xl mb-2">Recipe Suggestions 👨‍🍳</h2>
+                <p class="text-body">Delicious meals you can make right now</p>
+            </div>
+            <a href="{% url 'recipes:list' %}" class="btn-modern-secondary">
+                Browse All Recipes
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+        </div>
+        
+        {% if recent_recipes %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for recipe in recent_recipes %}
+                    <div class="recipe-card-modern interactive-element">
+                        <div class="recipe-card-image">
+                            <img src="{{ recipe.image_url|default:'/static/images/recipe-placeholder.jpg' }}" 
+                                 alt="{{ recipe.title }}" 
+                                 loading="lazy">
+                            <div class="recipe-card-badge">Ready to make</div>
+                        </div>
+                        <div class="recipe-card-content">
+                            <h3 class="recipe-card-title">{{ recipe.title }}</h3>
+                            <div class="recipe-card-meta">
+                                {% if recipe.cook_time %}
+                                    <div class="recipe-card-meta-item">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span>{{ recipe.cook_time }}min</span>
+                                    </div>
+                                {% endif %}
+                                {% if recipe.servings %}
+                                    <div class="recipe-card-meta-item">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"></path>
+                                        </svg>
+                                        <span>{{ recipe.servings }}</span>
+                                    </div>
+                                {% endif %}
+                                <div class="recipe-card-meta-item">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                    </svg>
+                                    <span>{{ recipe.difficulty|title }}</span>
+                                </div>
+                            </div>
+                            <a href="{% url 'recipes:detail' recipe.slug %}" class="btn-modern-primary w-full">
+                                View Recipe
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% elif stats.total_items == 0 %}
+            <div class="empty-state-modern">
+                <div class="empty-state-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                </div>
+                <h3 class="empty-state-title">Start your culinary journey! 🚀</h3>
+                <p class="empty-state-description">Add items to your inventory to see recipe suggestions based on what you have.</p>
+                <a href="{% url 'inventory:add' %}" class="btn-modern-primary">Add Your First Item</a>
+            </div>
+        {% else %}
+            <div class="empty-state-modern">
+                <div class="empty-state-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                </div>
+                <h3 class="empty-state-title">Recipes coming soon! 📚</h3>
+                <p class="empty-state-description">We're working on some amazing recipe suggestions for you.</p>
+                <a href="{% url 'recipes:list' %}" class="btn-modern-primary">Browse Recipe Collection</a>
+            </div>
+        {% endif %}
+    </div>
+    
+    {% else %}
+    <!-- Enhanced Landing Page for Non-Authenticated Users -->
+    <div class="max-w-4xl mx-auto text-center py-20">
+        <div class="mb-12">
+            <h1 class="text-display text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">
+                Welcome to Kitchentory
+            </h1>
+            <p class="text-body text-xl sm:text-2xl mb-8 max-w-2xl mx-auto">
+                Transform your kitchen management with smart inventory tracking and personalized recipe discovery
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+                <a href="{% url 'account_signup' %}" class="btn-modern-primary text-lg px-8 py-4">
+                    Get Started Free
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
+                </a>
+                
+                <a href="{% url 'account_login' %}" class="btn-modern-secondary text-lg px-8 py-4">
+                    Sign In
+                </a>
+            </div>
+        </div>
+        
+        <!-- Enhanced Features Grid -->
+        <div class="grid md:grid-cols-3 gap-8 mt-20">
+            <div class="card-modern interactive-element p-8 text-center">
+                <div class="stats-card-icon stats-card-icon--primary mx-auto mb-6">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                    </svg>
+                </div>
+                <h3 class="text-display text-xl font-semibold mb-4">Smart Inventory Tracking</h3>
+                <p class="text-body">Scan barcodes or manually add items to keep track of everything in your kitchen with expiration alerts</p>
+            </div>
+            
+            <div class="card-modern interactive-element p-8 text-center">
+                <div class="stats-card-icon stats-card-icon--success mx-auto mb-6">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                </div>
+                <h3 class="text-display text-xl font-semibold mb-4">Recipe Discovery</h3>
+                <p class="text-body">Find delicious recipes you can make with ingredients you already have at home</p>
+            </div>
+            
+            <div class="card-modern interactive-element p-8 text-center">
+                <div class="stats-card-icon stats-card-icon--warning mx-auto mb-6">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-display text-xl font-semibold mb-4">Smart Shopping Lists</h3>
+                <p class="text-body">Generate shopping lists automatically based on what you've used and what you need</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'js/theme-manager.js' %}"></script>
+{% endblock %}

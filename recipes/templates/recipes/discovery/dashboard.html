@@ -9,10 +9,10 @@
     <div class="dashboard-header mb-8">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Recipe Discovery</h1>
-                <p class="text-gray-600 mt-2">
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Recipe Discovery</h1>
+                <p class="text-gray-600 dark:text-gray-300 mt-2">
                     Find recipes you can make with your 
-                    <span class="font-semibold text-blue-600">{{ inventory_count }} available ingredients</span>
+                    <span class="font-semibold text-blue-600 dark:text-blue-400">{{ inventory_count }} available ingredients</span>
                 </p>
             </div>
             
@@ -84,40 +84,40 @@
     <!-- Filter Sidebar -->
     <div class="discovery-content grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div class="lg:col-span-1">
-            <div class="filter-sidebar bg-white rounded-lg shadow-sm border p-6 sticky top-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
+            <div class="filter-sidebar bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 sticky top-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Filters</h3>
                 
                 <!-- Match Type Filter -->
                 <div class="filter-group mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Match Type</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Match Type</label>
                     <div class="space-y-2">
                         <label class="flex items-center">
                             <input type="radio" name="match_type" value="all" checked
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                            <span class="ml-2 text-sm text-gray-700">All Recipes</span>
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">All Recipes</span>
                         </label>
                         <label class="flex items-center">
                             <input type="radio" name="match_type" value="perfect"
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                            <span class="ml-2 text-sm text-gray-700">Ready to Cook</span>
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Ready to Cook</span>
                         </label>
                         <label class="flex items-center">
                             <input type="radio" name="match_type" value="almost"
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                            <span class="ml-2 text-sm text-gray-700">Almost There</span>
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Almost There</span>
                         </label>
                         <label class="flex items-center">
                             <input type="radio" name="match_type" value="missing"
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                            <span class="ml-2 text-sm text-gray-700">Missing Ingredients</span>
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Missing Ingredients</span>
                         </label>
                     </div>
                 </div>
                 
                 <!-- Category Filter -->
                 <div class="filter-group mb-6">
-                    <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                    <select id="category" name="category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
+                    <select id="category" name="category" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                         <option value="">All Categories</option>
                         {% for category in categories %}
                             <option value="{{ category.id }}">{{ category.name }}</option>
@@ -127,41 +127,41 @@
                 
                 <!-- Max Missing Ingredients -->
                 <div class="filter-group mb-6">
-                    <label for="max_missing" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="max_missing" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Max Missing Ingredients: <span id="max_missing_value">3</span>
                     </label>
                     <input type="range" id="max_missing" name="max_missing" min="0" max="5" value="3"
-                           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                           class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer">
                 </div>
                 
                 <!-- Dietary Restrictions -->
                 <div class="filter-group mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Dietary Restrictions</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dietary Restrictions</label>
                     <div class="space-y-2">
                         <label class="flex items-center">
                             <input type="checkbox" name="vegetarian" value="1"
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <span class="ml-2 text-sm text-gray-700">Vegetarian</span>
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Vegetarian</span>
                         </label>
                         <label class="flex items-center">
                             <input type="checkbox" name="vegan" value="1"
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <span class="ml-2 text-sm text-gray-700">Vegan</span>
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Vegan</span>
                         </label>
                         <label class="flex items-center">
                             <input type="checkbox" name="gluten_free" value="1"
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <span class="ml-2 text-sm text-gray-700">Gluten-Free</span>
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Gluten-Free</span>
                         </label>
                         <label class="flex items-center">
                             <input type="checkbox" name="dairy_free" value="1"
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <span class="ml-2 text-sm text-gray-700">Dairy-Free</span>
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Dairy-Free</span>
                         </label>
                         <label class="flex items-center">
                             <input type="checkbox" name="nut_free" value="1"
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <span class="ml-2 text-sm text-gray-700">Nut-Free</span>
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Nut-Free</span>
                         </label>
                     </div>
                 </div>

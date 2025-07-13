@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
@@ -21,34 +22,31 @@ from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    
+    path("admin/", admin.site.urls),
     # Authentication
-    path('accounts/', include('allauth.urls')),
-    path('profile/', include('accounts.urls')),
-    
+    path("accounts/", include("allauth.urls")),
+    path("profile/", include("accounts.urls")),
     # App URLs
-    path('inventory/', include('inventory.urls')),
-    path('recipes/', include('recipes.urls')),
-    path('shopping/', include('shopping.urls')),
-    path('integrations/', include('integrations.urls')),
-    
+    path("inventory/", include("inventory.urls")),
+    path("recipes/", include("recipes.urls")),
+    path("shopping/", include("shopping.urls")),
+    path("integrations/", include("integrations.urls")),
     # API URLs
-    path('api/auth/', include('accounts.api_urls')),
-    path('api/inventory/', include('inventory.api_urls')),
-    path('api/integrations/', include('integrations.api_urls')),
-    
+    path("api/auth/", include("accounts.api_urls")),
+    path("api/inventory/", include("inventory.api_urls")),
+    path("api/integrations/", include("integrations.api_urls")),
     # Home page
-    path('', views.dashboard, name='home'),
+    path("", views.dashboard, name="home"),
 ]
 
 # Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    
+
     # Add debug toolbar URLs
     import debug_toolbar
+
     urlpatterns = [
-        path('__debug__/', include(debug_toolbar.urls)),
+        path("__debug__/", include(debug_toolbar.urls)),
     ] + urlpatterns

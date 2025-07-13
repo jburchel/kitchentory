@@ -106,6 +106,89 @@
   }
 }
 
+/* Dark mode overrides for basic components */
+:root[data-theme="dark"] {
+  /* Form elements */
+  .form-input {
+    @apply bg-gray-800 border-gray-600 text-gray-100 placeholder-gray-400;
+  }
+  
+  .form-input:focus {
+    @apply border-primary ring-primary;
+  }
+  
+  .form-select {
+    @apply bg-gray-800 border-gray-600 text-gray-100;
+  }
+  
+  .form-label {
+    @apply text-gray-200;
+  }
+  
+  /* Cards */
+  .card {
+    @apply bg-gray-800 border-gray-700;
+  }
+  
+  .card-header {
+    @apply border-gray-700;
+  }
+  
+  /* Alerts - adjust for better dark mode visibility */
+  .alert-success {
+    @apply bg-green-900 text-green-200 border-green-700;
+  }
+  
+  .alert-error {
+    @apply bg-red-900 text-red-200 border-red-700;
+  }
+  
+  .alert-warning {
+    @apply bg-yellow-900 text-yellow-200 border-yellow-700;
+  }
+  
+  .alert-info {
+    @apply bg-blue-900 text-blue-200 border-blue-700;
+  }
+  
+  /* Navigation */
+  .nav-item {
+    @apply text-gray-400 hover:text-primary;
+  }
+  
+  .nav-item.active {
+    @apply text-primary;
+  }
+  
+  /* Checkbox and radio inputs */
+  input[type="checkbox"], input[type="radio"] {
+    @apply bg-gray-800 border-gray-600;
+  }
+  
+  input[type="checkbox"]:checked, input[type="radio"]:checked {
+    @apply bg-primary border-primary;
+  }
+  
+  /* Select dropdown styling */
+  select {
+    @apply bg-gray-800 border-gray-600 text-gray-100;
+  }
+  
+  select option {
+    @apply bg-gray-800 text-gray-100;
+  }
+  
+  /* Number inputs */
+  input[type="number"] {
+    @apply bg-gray-800 border-gray-600 text-gray-100 placeholder-gray-400;
+  }
+  
+  /* Text inputs */
+  input[type="text"], input[type="email"], input[type="password"], textarea {
+    @apply bg-gray-800 border-gray-600 text-gray-100 placeholder-gray-400;
+  }
+}
+
 /* Custom utilities */
 @layer utilities {
   /* Hide scrollbar but keep functionality */

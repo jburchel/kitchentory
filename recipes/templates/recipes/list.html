@@ -3,27 +3,30 @@
 
 {% block title %}Recipes - Kitchentory{% endblock %}
 
+{% block extra_css %}
+<link href="{% static 'css/design-system.css' %}" rel="stylesheet">
+<link href="{% static 'css/enhanced-components.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
-<div class="recipes-list-container max-w-7xl mx-auto px-4 py-6">
-    <!-- Page Header -->
+<div class="recipes-list-container max-w-7xl mx-auto px-4 py-6 theme-transition">
+    <!-- Enhanced Page Header -->
     <div class="recipes-header mb-8">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Recipes</h1>
-                <p class="text-gray-600 mt-2">Discover delicious recipes for your available ingredients</p>
+                <h1 class="text-display text-3xl sm:text-4xl mb-2">Recipes 👨‍🍳</h1>
+                <p class="text-body text-lg">Discover delicious recipes for your available ingredients</p>
             </div>
             
             <div class="flex items-center space-x-4">
-                <a href="{% url 'recipes:create' %}" 
-                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                <a href="{% url 'recipes:create' %}" class="btn-modern-primary">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
                     <span>Add Recipe</span>
                 </a>
                 
-                <a href="{% url 'recipes:import' %}" 
-                   class="border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                <a href="{% url 'recipes:import' %}" class="btn-modern-secondary">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
                     </svg>
@@ -32,70 +35,101 @@
             </div>
         </div>
         
-        <!-- Search and Filter Bar -->
-        <div class="search-filter-bar bg-white rounded-lg shadow-sm border p-6 mb-6">
-            <form method="GET" class="recipe-search-form">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                    <!-- Search Input -->
-                    <div class="md:col-span-2">
-                        <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search Recipes</label>
-                        <div class="relative">
-                            <input type="text" 
-                                   id="search" 
-                                   name="q" 
-                                   value="{{ request.GET.q }}"
-                                   placeholder="Search by title, ingredients, or tags..."
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Quick Actions Section -->
+        <div class="quick-actions-modern mb-8">
+            <h3 class="quick-actions-title">Recipe Actions</h3>
+            <div class="quick-actions-grid">
+                <a href="{% url 'recipes:create' %}" class="quick-action-btn interactive-element">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span class="text-sm font-medium">Add Recipe</span>
+                </a>
+                <a href="{% url 'recipes:import' %}" class="quick-action-btn interactive-element">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                    </svg>
+                    <span class="text-sm font-medium">Import URL</span>
+                </a>
+                <a href="{% url 'recipes:discovery:dashboard' %}" class="quick-action-btn interactive-element">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                    </svg>
+                    <span class="text-sm font-medium">Cook Now</span>
+                </a>
+                <a href="{% url 'inventory:dashboard' %}" class="quick-action-btn interactive-element">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    <span class="text-sm font-medium">Check Pantry</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Enhanced Search and Filter Bar -->
+        <div class="card-modern mb-8">
+            <div class="p-6">
+                <h3 class="text-display text-lg mb-4">Find Your Perfect Recipe 🔍</h3>
+                <form method="GET" class="recipe-search-form">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                        <!-- Enhanced Search Input -->
+                        <div class="md:col-span-2">
+                            <label for="search" class="form-label-modern">Search Recipes</label>
+                            <div class="search-container-modern">
+                                <svg class="search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                 </svg>
+                                <input type="text" 
+                                       id="search" 
+                                       name="q" 
+                                       value="{{ request.GET.q }}"
+                                       placeholder="Search by title, ingredients, or tags..."
+                                       class="search-input-modern">
                             </div>
                         </div>
+                        
+                        <!-- Enhanced Category Filter -->
+                        <div>
+                            <label for="category" class="form-label-modern">Category</label>
+                            <select id="category" name="category" class="form-input-modern">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.slug }}" {% if request.GET.category == category.slug %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Enhanced Difficulty Filter -->
+                        <div>
+                            <label for="difficulty" class="form-label-modern">Difficulty</label>
+                            <select id="difficulty" name="difficulty" class="form-input-modern">
+                                <option value="">Any Difficulty</option>
+                                <option value="easy" {% if request.GET.difficulty == 'easy' %}selected{% endif %}>🟢 Easy</option>
+                                <option value="medium" {% if request.GET.difficulty == 'medium' %}selected{% endif %}>🟡 Medium</option>
+                                <option value="hard" {% if request.GET.difficulty == 'hard' %}selected{% endif %}>🔴 Hard</option>
+                            </select>
+                        </div>
                     </div>
-                    
-                    <!-- Category Filter -->
-                    <div>
-                        <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                        <select id="category" name="category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">All Categories</option>
-                            {% for category in categories %}
-                                <option value="{{ category.slug }}" {% if request.GET.category == category.slug %}selected{% endif %}>
-                                    {{ category.name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <!-- Difficulty Filter -->
-                    <div>
-                        <label for="difficulty" class="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
-                        <select id="difficulty" name="difficulty" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">Any Difficulty</option>
-                            <option value="easy" {% if request.GET.difficulty == 'easy' %}selected{% endif %}>Easy</option>
-                            <option value="medium" {% if request.GET.difficulty == 'medium' %}selected{% endif %}>Medium</option>
-                            <option value="hard" {% if request.GET.difficulty == 'hard' %}selected{% endif %}>Hard</option>
-                        </select>
-                    </div>
-                </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
                     <!-- Max Time -->
                     <div>
-                        <label for="max_time" class="block text-sm font-medium text-gray-700 mb-2">Max Time (min)</label>
+                        <label for="max_time" class="form-label-modern">Max Time (min)</label>
                         <input type="number" 
                                id="max_time" 
                                name="max_time" 
                                value="{{ request.GET.max_time }}"
                                placeholder="60"
                                min="0"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                               class="form-input-modern">
                     </div>
                     
                     <!-- Min Rating -->
                     <div>
-                        <label for="min_rating" class="block text-sm font-medium text-gray-700 mb-2">Min Rating</label>
-                        <select id="min_rating" name="min_rating" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        <label for="min_rating" class="form-label-modern">Min Rating</label>
+                        <select id="min_rating" name="min_rating" class="form-input-modern">
                             <option value="">Any Rating</option>
                             <option value="4" {% if request.GET.min_rating == '4' %}selected{% endif %}>4+ Stars</option>
                             <option value="3" {% if request.GET.min_rating == '3' %}selected{% endif %}>3+ Stars</option>
@@ -104,37 +138,37 @@
                     
                     <!-- Dietary Restrictions -->
                     <div class="md:col-span-3">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Dietary Restrictions</label>
+                        <label class="form-label-modern">Dietary Restrictions</label>
                         <div class="flex flex-wrap gap-3">
                             <label class="flex items-center">
                                 <input type="checkbox" name="vegetarian" value="1" 
                                        {% if request.GET.vegetarian %}checked{% endif %}
-                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                <span class="ml-2 text-sm text-gray-700">Vegetarian</span>
+                                       class="h-4 w-4 text-primary-600 focus:ring-primary border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded">
+                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Vegetarian</span>
                             </label>
                             <label class="flex items-center">
                                 <input type="checkbox" name="vegan" value="1" 
                                        {% if request.GET.vegan %}checked{% endif %}
-                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                <span class="ml-2 text-sm text-gray-700">Vegan</span>
+                                       class="h-4 w-4 text-primary-600 focus:ring-primary border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded">
+                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Vegan</span>
                             </label>
                             <label class="flex items-center">
                                 <input type="checkbox" name="gluten_free" value="1" 
                                        {% if request.GET.gluten_free %}checked{% endif %}
-                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                <span class="ml-2 text-sm text-gray-700">Gluten-Free</span>
+                                       class="h-4 w-4 text-primary-600 focus:ring-primary border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded">
+                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Gluten-Free</span>
                             </label>
                             <label class="flex items-center">
                                 <input type="checkbox" name="dairy_free" value="1" 
                                        {% if request.GET.dairy_free %}checked{% endif %}
-                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                <span class="ml-2 text-sm text-gray-700">Dairy-Free</span>
+                                       class="h-4 w-4 text-primary-600 focus:ring-primary border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded">
+                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Dairy-Free</span>
                             </label>
                             <label class="flex items-center">
                                 <input type="checkbox" name="nut_free" value="1" 
                                        {% if request.GET.nut_free %}checked{% endif %}
-                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                <span class="ml-2 text-sm text-gray-700">Nut-Free</span>
+                                       class="h-4 w-4 text-primary-600 focus:ring-primary border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded">
+                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Nut-Free</span>
                             </label>
                         </div>
                     </div>
@@ -143,7 +177,7 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-4">
                         <button type="submit" 
-                                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                                class="btn-modern-primary">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
@@ -151,7 +185,7 @@
                         </button>
                         
                         <a href="{% url 'recipes:list' %}" 
-                           class="text-gray-600 hover:text-gray-800 text-sm flex items-center space-x-1">
+                           class="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 text-sm flex items-center space-x-1">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -161,9 +195,9 @@
                     
                     <!-- Sort Options -->
                     <div class="flex items-center space-x-2">
-                        <label for="sort" class="text-sm text-gray-600">Sort by:</label>
+                        <label for="sort" class="text-sm text-gray-600 dark:text-gray-300">Sort by:</label>
                         <select id="sort" name="sort" onchange="this.form.submit()" 
-                                class="px-3 py-1 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500">
+                                class="px-3 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded text-sm focus:ring-primary focus:border-primary">
                             <option value="-created_at" {% if request.GET.sort == '-created_at' or not request.GET.sort %}selected{% endif %}>Newest</option>
                             <option value="created_at" {% if request.GET.sort == 'created_at' %}selected{% endif %}>Oldest</option>
                             <option value="-rating_average" {% if request.GET.sort == '-rating_average' %}selected{% endif %}>Highest Rated</option>
@@ -179,7 +213,7 @@
         <!-- Results Summary -->
         {% if recipes %}
             <div class="results-summary flex items-center justify-between mb-6">
-                <p class="text-gray-600">
+                <p class="text-gray-600 dark:text-gray-300">
                     Showing {{ recipes|length }} 
                     {% if recipes.has_other_pages %}
                         of {{ recipes.paginator.count }}
@@ -191,7 +225,7 @@
                 </p>
                 
                 <!-- View Options -->
-                <div class="view-options flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
+                <div class="view-options flex items-center space-x-2 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
                     <button onclick="setViewMode('grid')" 
                             id="gridViewBtn"
                             class="view-btn active px-3 py-1 rounded text-sm transition-colors">
@@ -346,4 +380,9 @@ function addToShoppingList(recipeId) {
     color: #374151;
 }
 </style>
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'js/theme-manager.js' %}"></script>
+{% endblock %}
 {% endblock %}

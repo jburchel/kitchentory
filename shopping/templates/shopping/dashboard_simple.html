@@ -3,18 +3,23 @@
 
 {% block title %}Shopping Lists - Kitchentory{% endblock %}
 
+{% block extra_css %}
+<link href="{% static 'css/design-system.css' %}" rel="stylesheet">
+<link href="{% static 'css/enhanced-components.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
-<div class="shopping-dashboard max-w-7xl mx-auto px-4 py-6">
-    <!-- Header -->
+<div class="shopping-dashboard max-w-7xl mx-auto px-4 py-6 theme-transition">
+    <!-- Enhanced Header -->
     <div class="dashboard-header mb-8">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Shopping Lists</h1>
-                <p class="text-gray-600 mt-2">Manage your shopping lists and track your grocery needs</p>
+                <h1 class="text-display text-3xl sm:text-4xl mb-2">Shopping Lists 🛒</h1>
+                <p class="text-body text-lg">Manage your shopping lists and track your grocery needs</p>
             </div>
             
             <div class="flex items-center space-x-4">
-                <a href="{% url 'shopping:create' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                <a href="{% url 'shopping:create' %}" class="btn-modern-primary">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
@@ -24,86 +29,152 @@
         </div>
     </div>
     
-    <!-- Quick Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow-sm border p-6">
-            <div class="flex items-center">
-                <div class="p-3 bg-blue-100 rounded-lg">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Quick Actions Section -->
+    <div class="quick-actions-modern mb-8">
+        <h3 class="quick-actions-title">Shopping Actions</h3>
+        <div class="quick-actions-grid">
+            <a href="{% url 'shopping:create' %}" class="quick-action-btn interactive-element">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <span class="text-sm font-medium">New List</span>
+            </a>
+            <a href="{% url 'inventory:dashboard' %}" class="quick-action-btn interactive-element">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+                <span class="text-sm font-medium">Check Inventory</span>
+            </a>
+            <a href="{% url 'recipes:list' %}" class="quick-action-btn interactive-element">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                <span class="text-sm font-medium">Find Recipes</span>
+            </a>
+            <a href="{% url 'inventory:add' %}" class="quick-action-btn interactive-element">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                </svg>
+                <span class="text-sm font-medium">Add Items</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Modern Stats Cards -->
+    <div class="stats-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Shopping Lists Count -->
+        <div class="stats-card-modern">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="stats-number-modern">{{ shopping_lists.count }}</p>
+                    <p class="stats-label-modern">Shopping Lists</p>
+                </div>
+                <div class="stats-icon-modern bg-primary">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                     </svg>
                 </div>
-                <div class="ml-4">
-                    <p class="text-2xl font-semibold text-gray-900">{{ shopping_lists.count }}</p>
-                    <p class="text-sm text-gray-600">Shopping Lists</p>
-                </div>
+            </div>
+            <div class="stats-indicator-modern stats-neutral">
+                <span>Active</span>
             </div>
         </div>
         
-        <div class="bg-white rounded-lg shadow-sm border p-6">
-            <div class="flex items-center">
-                <div class="p-3 bg-green-100 rounded-lg">
-                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Items to Buy -->
+        <div class="stats-card-modern">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="stats-number-modern">0</p>
+                    <p class="stats-label-modern">Items to Buy</p>
+                </div>
+                <div class="stats-icon-modern bg-fresh">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
                 </div>
-                <div class="ml-4">
-                    <p class="text-2xl font-semibold text-gray-900">0</p>
-                    <p class="text-sm text-gray-600">Items to Buy</p>
-                </div>
+            </div>
+            <div class="stats-indicator-modern stats-success">
+                <span>Ready</span>
             </div>
         </div>
         
-        <div class="bg-white rounded-lg shadow-sm border p-6">
-            <div class="flex items-center">
-                <div class="p-3 bg-orange-100 rounded-lg">
-                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Low Stock Items -->
+        <div class="stats-card-modern">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="stats-number-modern">1</p>
+                    <p class="stats-label-modern">Low Items</p>
+                </div>
+                <div class="stats-icon-modern bg-pantry">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
-                <div class="ml-4">
-                    <p class="text-2xl font-semibold text-gray-900">1</p>
-                    <p class="text-sm text-gray-600">Low Items</p>
-                </div>
+            </div>
+            <div class="stats-indicator-modern stats-warning">
+                <span>Action needed</span>
             </div>
         </div>
         
-        <div class="bg-white rounded-lg shadow-sm border p-6">
-            <div class="flex items-center">
-                <div class="p-3 bg-purple-100 rounded-lg">
-                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Shared Lists -->
+        <div class="stats-card-modern">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="stats-number-modern">0</p>
+                    <p class="stats-label-modern">Shared Lists</p>
+                </div>
+                <div class="stats-icon-modern bg-dairy">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
                 </div>
-                <div class="ml-4">
-                    <p class="text-2xl font-semibold text-gray-900">0</p>
-                    <p class="text-sm text-gray-600">Shared Lists</p>
-                </div>
+            </div>
+            <div class="stats-indicator-modern stats-neutral">
+                <span>Collaborate</span>
             </div>
         </div>
     </div>
     
-    <!-- Active Lists -->
-    <div class="active-lists mb-8">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Shopping Lists</h2>
+    <!-- Shopping Lists Section -->
+    <div class="shopping-lists-section mb-8">
+        <h2 class="section-title-modern mb-6">Your Shopping Lists 📝</h2>
         
         {% if shopping_lists %}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for list in shopping_lists %}
-            <a href="{% url 'shopping:detail' list.id %}" class="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow block">
+            <a href="{% url 'shopping:detail' list.id %}" class="card-modern hover:scale-105 group">
                 <div class="p-6">
+                    <!-- List Header -->
                     <div class="flex items-start justify-between mb-4">
-                        <div>
-                            <h3 class="font-semibold text-gray-900">{{ list.name }}</h3>
-                            <p class="text-sm text-gray-600 mt-1">{{ list.items.count }} items</p>
+                        <div class="flex-1">
+                            <h3 class="text-display text-lg group-hover:text-primary transition-colors">{{ list.name }}</h3>
+                            <p class="text-body-secondary text-sm mt-1">{{ list.items.count }} item{{ list.items.count|pluralize }}</p>
                         </div>
-                        <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">{{ list.get_status_display }}</span>
+                        <span class="badge-modern badge-neutral">{{ list.get_status_display }}</span>
                     </div>
                     
-                    <!-- Metadata -->
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-gray-500">Updated {{ list.updated_at|timesince }} ago</span>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <!-- Progress Bar (if items exist) -->
+                    {% if list.items.count > 0 %}
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between text-xs text-body-secondary mb-1">
+                            <span>Progress</span>
+                            <span>{{ list.completed_percentage|default:0 }}%</span>
+                        </div>
+                        <div class="progress-bar-modern">
+                            <div class="progress-fill-modern" style="width: {{ list.completed_percentage|default:0 }}%"></div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Metadata & Actions -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2 text-xs text-body-secondary">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>{{ list.updated_at|timesince }} ago</span>
+                        </div>
+                        <svg class="w-5 h-5 text-body-tertiary group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>
                     </div>
@@ -112,20 +183,36 @@
             {% endfor %}
         </div>
         {% else %}
-        <div class="bg-gray-50 rounded-lg p-12 text-center">
-            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-            </svg>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">No shopping lists yet</h3>
-            <p class="text-gray-600 mb-4">Create a new shopping list to get started with smart grocery management</p>
-            <a href="{% url 'shopping:create' %}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Create Shopping List
-            </a>
+        <!-- Enhanced Empty State -->
+        <div class="empty-state-modern">
+            <div class="empty-icon-modern">
+                🛒
+            </div>
+            <h3 class="empty-title-modern">Start Your First Shopping List</h3>
+            <p class="empty-description-modern">
+                Create smart shopping lists that sync with your inventory and help you never forget an item again.
+            </p>
+            <div class="empty-actions-modern">
+                <a href="{% url 'shopping:create' %}" class="btn-modern-primary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Create Shopping List
+                </a>
+                <a href="{% url 'inventory:dashboard' %}" class="btn-modern-secondary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    Check Inventory
+                </a>
+            </div>
         </div>
         {% endif %}
     </div>
 </div>
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'js/theme-manager.js' %}"></script>
+{% endblock %}
 {% endblock %}
