@@ -39,6 +39,38 @@ class User(AbstractUser):
     # Tracking
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    # Subscription fields
+    current_plan = models.ForeignKey(
+        'subscriptions.SubscriptionPlan',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='users',
+        help_text="Current subscription plan (cached for quick access)"
+    )
+    subscription_status = models.CharField(
+        max_length=20,
+        blank=True,
+        default='',
+        help_text="Current subscription status (cached for quick access)"
+    )
+    trial_end_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="End date of trial period"
+    )
+    subscription_end_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="End date of current subscription period"
+    )
+    stripe_customer_id = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        help_text="Stripe customer ID for payment processing"
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
@@ -50,6 +82,37 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+    
+    def get_subscription_plan(self):
+        """Get user's subscription plan, defaulting to free if none."""
+        if hasattr(self, 'subscription') and self.subscription.is_active:
+            return self.subscription.plan
+        # Return cached plan or free plan
+        if self.current_plan:
+            return self.current_plan
+        # Import here to avoid circular imports
+        from subscriptions.models import SubscriptionPlan
+        try:
+            return SubscriptionPlan.objects.get(tier='free')
+        except SubscriptionPlan.DoesNotExist:
+            return None
+    
+    def has_premium_features(self):
+        """Check if user has at least premium tier."""
+        plan = self.get_subscription_plan()
+        return plan and plan.tier in ['premium', 'pro']
+    
+    def has_pro_features(self):
+        """Check if user has pro tier."""
+        plan = self.get_subscription_plan()
+        return plan and plan.tier == 'pro'
+    
+    def can_use_feature(self, feature_name):
+        """Check if user can use a specific feature based on their plan."""
+        plan = self.get_subscription_plan()
+        if not plan:
+            return False
+        return getattr(plan, f'has_{feature_name}', False)
 
 
 class Household(models.Model):

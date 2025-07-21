@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Kitchentory</string>
+    <string name="title_activity_main">Kitchentory</string>
+    <string name="package_name">com.kitchentory.app</string>
+    <string name="custom_url_scheme">com.kitchentory.app</string>
+</resources>

@@ -49,8 +49,21 @@
     <!-- Alpine.js for interactivity -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
+    <!-- Capacitor Runtime (for native app features) -->
+    <script type="module">
+        // Load Capacitor runtime if available
+        if (window.Capacitor) {
+            import('https://cdn.jsdelivr.net/npm/@capacitor/core@7/dist/index.esm.js')
+                .then(() => console.log('Capacitor runtime loaded'))
+                .catch(() => console.log('Running in web mode'));
+        }
+    </script>
+    
     <!-- Heroicons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/heroicons/2.0.18/styles.min.css">
+    
+    <!-- PWA Install Prompt -->
+    <script src="{% static 'js/pwa-install.js' %}"></script>
     
     {% block extra_head %}{% endblock %}
 </head>
@@ -249,6 +262,9 @@
     <script src="{% static 'js/mobile.js' %}"></script>
     <script src="{% static 'js/image-optimization.js' %}"></script>
     <script src="{% static 'js/theme-manager.js' %}"></script>
+    
+    <!-- Native App Integration -->
+    <script type="module" src="{% static 'js/native-integration.js' %}"></script>
     
     <!-- Barcode Scanner Module -->
     <script src="{% static 'js/barcode-scanner.js' %}"></script>

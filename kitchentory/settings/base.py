@@ -59,6 +59,8 @@ INSTALLED_APPS = [
     "integrations",
     "analytics",
     "notifications",
+    "subscriptions",
+    "insights",
 ]
 
 MIDDLEWARE = [
@@ -73,6 +75,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "subscriptions.middleware.SubscriptionMiddleware",
+    "subscriptions.middleware.UsageTrackingMiddleware",
 ]
 
 ROOT_URLCONF = "kitchentory.urls"
@@ -88,6 +92,10 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "subscriptions.context_processors.subscription_context",
+                "subscriptions.context_processors.upgrade_prompts",
+                "subscriptions.context_processors.subscription_stats",
+                "subscriptions.context_processors.feature_availability",
             ],
         },
     },
@@ -210,6 +218,12 @@ REST_FRAMEWORK = {
 SUPABASE_URL = config("SUPABASE_URL", default="")
 SUPABASE_ANON_KEY = config("SUPABASE_ANON_KEY", default="")
 SUPABASE_SERVICE_KEY = config("SUPABASE_SERVICE_KEY", default="")
+
+# Stripe settings
+STRIPE_PUBLISHABLE_KEY = config("STRIPE_PUBLISHABLE_KEY", default="")
+STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY", default="")
+STRIPE_WEBHOOK_SECRET = config("STRIPE_WEBHOOK_SECRET", default="")
+STRIPE_PRICE_LOOKUP_KEY = config("STRIPE_PRICE_LOOKUP_KEY", default="")
 
 # WhiteNoise settings
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"

@@ -29,9 +29,12 @@ from .forms import (
     RecipeSearchForm,
 )
 from .utils import import_recipe_from_url, create_recipe_from_data
+from subscriptions.decorators import feature_required, usage_limit_required, track_usage
 
 
 @login_required
+@feature_required('recipe_matching')
+@track_usage('recipe_search')
 def recipe_list(request):
     """
     Recipe discovery and search page.
@@ -331,6 +334,7 @@ def recipe_quick_create(request):
 
 
 @login_required
+@feature_required('advanced_matching')
 def recipe_import(request):
     """
     Import recipe from URL.

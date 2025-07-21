@@ -20,6 +20,7 @@ from .forms import (
     BulkActionForm,
     ManualProductForm,
 )
+from subscriptions.decorators import usage_limit_required
 
 
 @household_required
@@ -138,6 +139,7 @@ def inventory_list(request):
 
 
 @login_required
+@usage_limit_required('inventory', redirect_to_upgrade=True)
 def add_item(request):
     """Add a new inventory item."""
     if request.method == "POST":
@@ -175,6 +177,11 @@ def add_item(request):
                 item.expiration_date = date.today() + timedelta(days=days)
 
             item.save()
+
+            # Update inventory usage tracking
+            from subscriptions.models import InventoryUsage
+            usage, _ = InventoryUsage.objects.get_or_create(user=request.user)
+            usage.increment_item_count()
 
             messages.success(request, _("Item added successfully!"))
 
@@ -241,6 +248,11 @@ def delete_item(request, pk):
     """Delete an inventory item."""
     item = get_object_or_404(InventoryItem, pk=pk, household=request.user.household)
 
+    # Update inventory usage tracking
+    from subscriptions.models import InventoryUsage
+    usage, _ = InventoryUsage.objects.get_or_create(user=request.user)
+    usage.decrement_item_count()
+    
     item.delete()
 
     if request.headers.get("HX-Request"):
@@ -483,6 +495,7 @@ def add_product_manual(request):
 
 
 @login_required
+@usage_limit_required('inventory', redirect_to_upgrade=True)
 def add_item_for_product(request, product_id):
     """Add inventory item for a specific product."""
     product = get_object_or_404(Product, id=product_id)
@@ -495,6 +508,11 @@ def add_item_for_product(request, product_id):
             item.household = request.user.household
             item.product = product
             item.save()
+
+            # Update inventory usage tracking
+            from subscriptions.models import InventoryUsage
+            usage, _ = InventoryUsage.objects.get_or_create(user=request.user)
+            usage.increment_item_count()
 
             messages.success(request, _("Item added to your inventory!"))
             return redirect("inventory:list")

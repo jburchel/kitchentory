@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 
 from .models import ShoppingList, Store, ShoppingListItem
+from subscriptions.decorators import usage_limit_required
 
 
 @login_required
@@ -32,6 +33,7 @@ def shopping_dashboard(request):
 
 
 @login_required
+@usage_limit_required('shopping_list', redirect_to_upgrade=True)
 def create_shopping_list(request):
     """Create a new shopping list."""
     household = request.user.household
@@ -57,6 +59,11 @@ def create_shopping_list(request):
                 status="active",
                 generation_source="manual",
             )
+
+            # Update shopping list usage tracking
+            from subscriptions.models import ShoppingListUsage
+            usage, _ = ShoppingListUsage.objects.get_or_create(user=request.user)
+            usage.increment_list_count()
 
             # Add store if selected
             if store_id:

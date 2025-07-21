@@ -31,6 +31,8 @@ urlpatterns = [
     path("recipes/", include("recipes.urls")),
     path("shopping/", include("shopping.urls")),
     path("integrations/", include("integrations.urls")),
+    path("subscriptions/", include("subscriptions.urls")),
+    path("insights/", include("insights.urls")),
     # API URLs
     path("api/auth/", include("accounts.api_urls")),
     path("api/inventory/", include("inventory.api_urls")),

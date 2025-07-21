@@ -15,6 +15,17 @@
     "tailwindcss": "^3.4.17"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.2",
+    "@capacitor/app": "^7.0.1",
+    "@capacitor/camera": "^7.0.1",
+    "@capacitor/cli": "^7.4.2",
+    "@capacitor/core": "^7.4.2",
+    "@capacitor/haptics": "^7.0.1",
+    "@capacitor/ios": "^7.4.2",
+    "@capacitor/keyboard": "^7.0.1",
+    "@capacitor/push-notifications": "^7.0.1",
+    "@capacitor/splash-screen": "^7.0.1",
+    "@capacitor/status-bar": "^7.0.1",
     "@modelcontextprotocol/server-filesystem": "^2025.7.1",
     "@modelcontextprotocol/server-memory": "^2025.4.25",
     "@modelcontextprotocol/server-postgres": "^0.6.2",
@@ -109,5 +120,16 @@
     "wrap-ansi": "^8.1.0",
     "wrap-ansi-cjs": "^7.0.0",
     "yaml": "^2.8.0"
-  }
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jburchel/kitchentory.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jburchel/kitchentory/issues"
+  },
+  "homepage": "https://github.com/jburchel/kitchentory#readme"
 }

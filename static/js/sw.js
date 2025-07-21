@@ -1,8 +1,9 @@
 // Service Worker for Kitchentory PWA
-const CACHE_NAME = 'kitchentory-v1';
+const CACHE_NAME = 'kitchentory-v2';
 const urlsToCache = [
   '/',
   '/static/css/tailwind.css',
+  '/static/css/output.css',
   '/static/js/main.js',
   '/static/js/barcode-scanner.js',
   '/static/images/logo.png',
@@ -11,6 +12,8 @@ const urlsToCache = [
   '/inventory/',
   '/recipes/',
   '/shopping/',
+  '/subscriptions/',
+  '/insights/',
   '/offline/',
 ];
 
@@ -121,28 +124,74 @@ self.addEventListener('sync', event => {
 self.addEventListener('push', event => {
   console.log('Service Worker: Push notification received');
   
-  const options = {
-    body: event.data ? event.data.text() : 'New notification from Kitchentory',
+  let notificationData = {
+    title: 'Kitchentory',
+    body: 'New notification from Kitchentory',
+    type: 'general'
+  };
+  
+  if (event.data) {
+    try {
+      notificationData = event.data.json();
+    } catch (e) {
+      notificationData.body = event.data.text();
+    }
+  }
+  
+  let options = {
+    body: notificationData.body,
     icon: '/static/images/icon-192.png',
     badge: '/static/images/badge-72.png',
     tag: 'kitchentory-notification',
-    requireInteraction: true,
-    actions: [
-      {
-        action: 'view',
-        title: 'View',
-        icon: '/static/images/action-view.png'
-      },
-      {
-        action: 'dismiss',
-        title: 'Dismiss',
-        icon: '/static/images/action-dismiss.png'
-      }
-    ]
+    requireInteraction: false,
+    actions: []
   };
+  
+  // Customize notifications based on type
+  switch (notificationData.type) {
+    case 'subscription_trial_ending':
+      options.requireInteraction = true;
+      options.body = 'Your trial ends soon! Upgrade to keep all your premium features.';
+      options.actions = [
+        { action: 'upgrade', title: 'Upgrade Now', icon: '/static/images/action-upgrade.png' },
+        { action: 'dismiss', title: 'Remind Later', icon: '/static/images/action-dismiss.png' }
+      ];
+      break;
+      
+    case 'subscription_expired':
+      options.requireInteraction = true;
+      options.body = 'Your subscription has expired. Renew to restore full access.';
+      options.actions = [
+        { action: 'renew', title: 'Renew', icon: '/static/images/action-renew.png' },
+        { action: 'dismiss', title: 'Later', icon: '/static/images/action-dismiss.png' }
+      ];
+      break;
+      
+    case 'expiration_alert':
+      options.body = notificationData.body || 'Items in your inventory are expiring soon!';
+      options.actions = [
+        { action: 'view_inventory', title: 'View Items', icon: '/static/images/action-inventory.png' },
+        { action: 'find_recipes', title: 'Find Recipes', icon: '/static/images/action-recipes.png' }
+      ];
+      break;
+      
+    case 'recipe_suggestion':
+      options.body = notificationData.body || 'New recipes available based on your inventory!';
+      options.actions = [
+        { action: 'view_recipes', title: 'View Recipes', icon: '/static/images/action-recipes.png' },
+        { action: 'dismiss', title: 'Later', icon: '/static/images/action-dismiss.png' }
+      ];
+      break;
+      
+    default:
+      options.actions = [
+        { action: 'view', title: 'View', icon: '/static/images/action-view.png' },
+        { action: 'dismiss', title: 'Dismiss', icon: '/static/images/action-dismiss.png' }
+      ];
+  }
 
   event.waitUntil(
-    self.registration.showNotification('Kitchentory', options)
+    self.registration.showNotification(notificationData.title || 'Kitchentory', options)
   );
 });
 
@@ -152,11 +201,45 @@ self.addEventListener('notificationclick', event => {
   
   event.notification.close();
 
-  if (event.action === 'view') {
-    event.waitUntil(
-      clients.openWindow('/')
-    );
+  let targetUrl = '/';
+  
+  switch (event.action) {
+    case 'upgrade':
+    case 'renew':
+      targetUrl = '/subscriptions/upgrade/';
+      break;
+    case 'view_inventory':
+      targetUrl = '/inventory/';
+      break;
+    case 'find_recipes':
+    case 'view_recipes':
+      targetUrl = '/recipes/';
+      break;
+    case 'view':
+      targetUrl = '/';
+      break;
+    case 'dismiss':
+      return; // Just close the notification
+    default:
+      if (!event.action) {
+        // Clicked on notification body
+        targetUrl = '/';
+      }
   }
+  
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+      // Check if app is already open
+      for (let client of clientList) {
+        if (client.url.includes(new URL(targetUrl, self.location.origin).pathname)) {
+          return client.focus();
+        }
+      }
+      
+      // Open new window/tab
+      return clients.openWindow(targetUrl);
+    })
+  );
 });
 
 // Sync functions
