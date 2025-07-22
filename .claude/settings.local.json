@@ -70,7 +70,25 @@
       "Bash(osascript:*)",
       "Bash(open:*)",
       "Bash(git push:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "mcp__supabase__get_project",
+      "mcp__supabase__get_project_url",
+      "mcp__supabase__get_anon_key",
+      "mcp__supabase__list_tables",
+      "Bash(brew install:*)",
+      "Bash(render --version)",
+      "Bash(render --help)",
+      "Bash(render login)",
+      "Bash(render whoami:*)",
+      "Bash(render services:*)",
+      "Bash(render workspace:*)",
+      "Bash(render projects:*)",
+      "Bash(render deploy:*)",
+      "Bash(render logs:*)",
+      "Bash(env)",
+      "Bash(DJANGO_SETTINGS_MODULE=kitchentory.settings.development python manage.py showmigrations inventory)",
+      "Bash(multiple leaf nodes in the migration graph\"\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(render restart:*)"
     ],
     "deny": []
   }
