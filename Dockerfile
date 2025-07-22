@@ -8,10 +8,13 @@ ENV DJANGO_ENV=production
 # Set work directory
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies including Node.js
 RUN apt-get update && apt-get install -y \
     build-essential \
     postgresql-client \
+    curl \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -21,6 +24,9 @@ RUN pip install --upgrade pip && \
 
 # Copy project
 COPY . /app/
+
+# Install npm dependencies and build CSS
+RUN npm install && npm run build-css
 
 # Collect static files
 RUN python manage.py collectstatic --noinput
