@@ -34,11 +34,5 @@ RUN python manage.py collectstatic --noinput
 # Run migrations, create subscription plans, create temp admin, and start server
 CMD python manage.py migrate && \
     python manage.py create_subscription_plans && \
-    python manage.py shell -c "
-from django.contrib.auth import get_user_model;
-User = get_user_model();
-if not User.objects.filter(email='temp@admin.com').exists():
-    User.objects.create_user(email='temp@admin.com', password='TempAdmin123!', is_staff=True, is_superuser=True, is_active=True);
-    print('Temp admin created: temp@admin.com / TempAdmin123!')
-" && \
+    python manage.py create_temp_admin && \
     gunicorn kitchentory.wsgi:application --bind 0.0.0.0:$PORT
