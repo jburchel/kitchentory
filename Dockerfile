@@ -31,6 +31,7 @@ RUN npm install && npm run build-css
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
-# Run migrations and start server
+# Run migrations, create subscription plans, and start server
 CMD python manage.py migrate && \
+    python manage.py create_subscription_plans && \
     gunicorn kitchentory.wsgi:application --bind 0.0.0.0:$PORT
